@@ -1,0 +1,2034 @@
+/* متن‌های مینی‌اپ با نگه‌داشتن دست انتخاب و کپی نمی‌شوند (فقط جای تایپ استثناست) */
+html, body, body * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+input, textarea, [contenteditable="true"], input *, textarea * { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+
+  :root {
+    --bg: #0f1218;
+    --card: #181b22;
+    --card-2: #1f232c;
+    --text: #f2efe8;
+    --hint: #8d93a0;
+    --gold: #8fa84a;
+    --gold-soft: rgba(143,168,74,.16);
+    --line: #2a2f3a;
+  }
+  * { box-sizing: border-box; margin: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: Vazirmatn, "Noto Sans Arabic", Tahoma, system-ui, sans-serif;
+    background: radial-gradient(120% 60% at 50% 0%, #161b11 0%, var(--bg) 60%) fixed;
+    color: var(--text); min-height: 100vh;
+  }
+  .top { padding: 20px 14px 10px; }
+  h1 { font-size: 18px; line-height: 1.6; }
+  .sub { color: var(--hint); font-size: 13px; margin-top: 2px; }
+  .badge {
+    display: inline-block; margin-top: 8px; padding: 3px 12px; border-radius: 999px;
+    font-size: 12px; background: var(--gold-soft); color: var(--gold); border: 1px solid rgba(143,168,74,.35);
+  }
+  .searchwrap { position: sticky; top: 0; z-index: 2; padding: 8px 14px 12px; background: linear-gradient(var(--bg) 70%, transparent); }
+  .search {
+    width: 100%; padding: 14px 16px; font: inherit; font-size: 14px; color: var(--text);
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+  }
+  .search::placeholder { color: var(--hint); }
+  .search:focus-visible { outline: 2px solid var(--gold); }
+  .grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+    padding: 4px 14px calc(100px + env(safe-area-inset-bottom));
+  }
+  .c {
+    background: linear-gradient(160deg, var(--card-2), var(--card));
+    border: 1px solid var(--line); border-radius: 18px; padding: 14px 14px 12px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+    cursor: pointer; min-height: 132px; position: relative;
+  }
+  .c[aria-disabled="true"] { cursor: default; }
+  .flag {
+    width: 46px; height: 46px; border-radius: 50%; overflow: hidden; flex: none;
+    border: 2px solid rgba(255,255,255,.25); box-shadow: 0 2px 8px rgba(0,0,0,.5);
+    display: flex; align-items: center; justify-content: center; font-size: 28px; background: #2b3039;
+  }
+  .flag img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .name { font-size: 14px; line-height: 1.5; }
+  .meta { font-size: 13px; color: var(--hint); }
+  .mine {
+    font-size: 12px; color: #0f1405; background: var(--gold); border-radius: 999px; padding: 2px 10px; font-weight: 600;
+  }
+  .c[aria-selected="true"], .c.me {
+    border-color: var(--gold); background: linear-gradient(160deg, #1f2615, var(--card));
+    box-shadow: 0 0 0 1px var(--gold) inset, 0 4px 18px rgba(143,168,74,.12);
+  }
+  .c:focus-visible { outline: 2px solid var(--gold); }
+  .sec {
+    grid-column: 1 / -1; font-size: 13px; font-weight: 600; color: var(--gold);
+    padding: 10px 2px 0; display: flex; align-items: center; gap: 8px;
+  }
+  .sec::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .sec small { color: var(--hint); font-weight: 400; font-size: 12px; }
+  /* کشورهای Premium Plus و Premium */
+  .c.t-plus {
+    border-color: rgba(255,214,120,.75); overflow: hidden;
+    background: radial-gradient(120% 90% at 100% 0%, rgba(255,205,90,.30), transparent 60%), linear-gradient(160deg, #3a2e14, #1c1810);
+    box-shadow: 0 0 0 1px rgba(255,214,120,.25) inset, 0 6px 22px rgba(255,190,70,.18);
+  }
+  .c.t-premium {
+    border-color: rgba(150,175,255,.65); overflow: hidden;
+    background: radial-gradient(120% 90% at 100% 0%, rgba(130,160,255,.28), transparent 60%), linear-gradient(160deg, #1e2744, #151a2a);
+    box-shadow: 0 0 0 1px rgba(150,175,255,.2) inset, 0 6px 22px rgba(110,140,255,.15);
+  }
+  .c.t-plus::before, .c.t-premium::before {
+    content: ""; position: absolute; top: 0; left: -60%; width: 40%; height: 100%; pointer-events: none;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,.14), transparent);
+    animation: shine 4.5s ease-in-out infinite;
+  }
+  @keyframes shine { 0%, 55% { left: -60%; } 100% { left: 130%; } }
+  .c.t-plus .flag { border-color: #ffd678; box-shadow: 0 0 14px rgba(255,205,90,.55); }
+  .c.t-premium .flag { border-color: #9db4ff; box-shadow: 0 0 14px rgba(130,160,255,.45); }
+  .tier {
+    font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; letter-spacing: .2px;
+  }
+  .tier.plus { color: #2a1d00; background: linear-gradient(90deg, #ffe08a, #f2b84b); }
+  .tier.premium { color: #0f1838; background: linear-gradient(90deg, #cdd9ff, #8fa8ff); }
+  .c.t-plus[aria-selected="true"] { border-color: #ffe6cc; box-shadow: 0 0 0 2px #ffd678, 0 6px 26px rgba(255,190,70,.4); }
+  .c.t-premium[aria-selected="true"] { border-color: #e4ebff; box-shadow: 0 0 0 2px #9db4ff, 0 6px 26px rgba(110,140,255,.4); }
+  .sec.s-plus { color: #ffd678; font-size: 14px; }
+  .sec.s-premium { color: #aebfff; font-size: 14px; }
+  [hidden] { display: none !important; }
+  .tabs { display: flex; gap: 8px; padding: 2px 14px 8px; }
+  .tab {
+    flex: 1; padding: 10px 0; font: inherit; font-size: 13px; color: var(--hint); cursor: pointer;
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  }
+  .tab.on { color: var(--gold); border-color: var(--gold); background: var(--gold-soft); }
+  .mapview { padding: 4px 14px calc(100px + env(safe-area-inset-bottom)); }
+  .globewrap {
+    position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden;
+    border-radius: 24px; border: 1px solid var(--line);
+    background: radial-gradient(circle at 50% 50%, #0d1a2b 0%, #070a10 72%);
+  }
+  #globe { width: 100%; height: 100%; display: block; touch-action: none; }
+  .globewrap.flat { aspect-ratio: 1 / .62; background: #12171d; }
+  .zoom { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; }
+  .zoom button {
+    width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); cursor: pointer;
+    background: rgba(24,27,34,.9); color: var(--text); font-size: 16px; font-family: inherit;
+  }
+  .gmsg { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; color: var(--hint); font-size: 12px; pointer-events: none; }
+  .chip {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+    background: rgba(24,27,34,.92); border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px; font-size: 13px;
+  }
+  .mycard {
+    margin-top: 12px; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px;
+    background: linear-gradient(160deg, #1f2615, var(--card)); border: 1px solid var(--gold);
+  }
+  .mycard .t1 { font-size: 12px; color: var(--hint); }
+  .mycard .t2 { font-size: 14px; line-height: 1.5; }
+  .mycard .t3 { font-size: 13px; color: var(--gold); }
+  .flag.sm { width: 30px; height: 30px; font-size: 16px; border-width: 1px; box-shadow: none; }
+  .flag.lg { width: 58px; height: 58px; font-size: 34px; border: 3px solid #c8793a; }
+  /* نوار پایین */
+  .nav {
+    position: fixed; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 5;
+    display: flex; align-items: flex-end; justify-content: space-between; padding: 8px 8px 6px;
+    border-radius: 28px; background: rgba(24,27,34,.97); border: 1px solid var(--line);
+  }
+  .ni {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0;
+    font: inherit; font-size: 12px; color: var(--hint); background: none; border: 0; cursor: pointer;
+  }
+  .ni .ic { font-size: 20px; line-height: 1.2; }
+  .ni.on { color: var(--gold); }
+  .ni.home { margin-top: -38px; }
+  .ni.home .ic {
+    width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: var(--gold); font-size: 28px; border: 4px solid var(--bg); box-shadow: 0 0 0 2px rgba(143,168,74,.55);
+  }
+  .toast {
+    position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%); z-index: 9; white-space: nowrap;
+    background: rgba(24,27,34,.96); border: 1px solid var(--gold); color: var(--text);
+    padding: 8px 18px; border-radius: 999px; font-size: 13px;
+  }
+  /* خانه */
+  .homeview { padding: 14px 14px calc(120px + env(safe-area-inset-bottom)); }
+  .hbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .hgrp { display: flex; align-items: center; gap: 10px; }
+  .ibtn {
+    width: 54px; height: 54px; border-radius: 50%; font-size: 20px; color: var(--text); cursor: pointer;
+    background: rgba(255,255,255,.05); border: 1px solid var(--line);
+  }
+  .ibtn.gold { border-color: rgba(143,168,74,.5); color: var(--gold); }
+  .avatar { position: relative; cursor: pointer; }
+  .lvl {
+    position: absolute; left: 50%; bottom: -8px; transform: translateX(-50%); min-width: 30px; text-align: center;
+    background: #b8742f; color: #ffe6cc; font-size: 13px; font-weight: 700; border-radius: 999px; padding: 0 8px;
+  }
+  .hero {
+    position: relative; border-radius: 28px; padding: 12px; overflow: hidden; border: 1px solid var(--line);
+    background:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200' preserveAspectRatio='none'><polygon points='0,200 0,90 60,40 110,85 170,20 240,90 300,50 360,95 400,60 400,200' fill='%23ffffff' fill-opacity='.10'/></svg>") center top / 100% 55% no-repeat,
+      linear-gradient(170deg, #3a5748 0%, #1f3140 45%, #151b22 100%);
+  }
+  .hero-top { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 14px; }
+  .htitle { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 999px; font-size: 13px;
+    background: rgba(15,18,24,.55); border: 1px solid var(--line);
+  }
+  .pill.soft { color: var(--hint); font-size: 13px; padding: 4px 14px; }
+  .panel {
+    background: rgba(15,22,30,.62); border: 1px solid rgba(255,255,255,.10); border-radius: 24px; padding: 14px 18px 16px;
+  }
+  .panel hr { border: 0; border-top: 1px solid rgba(255,255,255,.10); margin: 12px 0; }
+  .lbl { font-size: 13px; color: #c9ccd3; }
+  .cash { font-size: 34px; font-weight: 700; margin: 6px 0 4px; direction: ltr; text-align: right; }
+  .inc { font-size: 14px; color: var(--hint); }
+  .stats { display: flex; align-items: center; }
+  .stat { flex: 1; }
+  .stat .val { font-size: 30px; font-weight: 700; margin-top: 4px; }
+  .stat .val.green { color: #3fd0a5; }
+  .stat .val.neg { color: #ff7a7a; }
+  .stat .sub { font-size: 13px; color: var(--hint); }
+  .stat.mid { text-align: center; }
+  .safe { font-size: 44px; opacity: .85; }
+  .rowx { display: flex; align-items: center; justify-content: space-between; font-size: 14px; gap: 8px; }
+  .rowx b { font-size: 14px; }
+  .muted { color: var(--hint); font-size: 13px; }
+  .job {
+    margin-top: 14px; border-radius: 24px; padding: 14px 18px 16px; border: 1px solid var(--line);
+    background: linear-gradient(160deg, #2a2f36, #1a1d23);
+  }
+  .job .jt { font-size: 14px; color: var(--hint); }
+  .job .jn { font-size: 14px; margin: 6px 0 12px; }
+  .bar { height: 9px; border-radius: 999px; background: rgba(255,255,255,.10); overflow: hidden; direction: ltr; }
+  .bar i { display: block; height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, #4a7bd8, #7aa7ff); transition: width .9s linear; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  .tile {
+    position: relative; min-height: 170px; border-radius: 24px; padding: 14px; cursor: pointer; overflow: hidden;
+    border: 1px solid var(--line); display: flex; flex-direction: column; justify-content: flex-end; gap: 6px;
+  }
+  .tile h3 { font-size: 20px; }
+  .tile p { font-size: 13px; color: #d0d3da; line-height: 1.7; max-width: 62%; }
+  .tile .sh { position: absolute; }
+  .tile .sh { left: 12px; bottom: 14px; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+  .tile .sh.round { border-radius: 50%; border: 2px solid rgba(255,255,255,.25); }
+  .tile .sh.hex { clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+  .tile .sh.shield { clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%); width: 52px; height: 60px; }
+  .sh.red { background: linear-gradient(160deg, #b94a4a, #6e2222); }
+  .sh.blue { background: linear-gradient(160deg, #4a73b9, #223d6e); }
+  .sh.purple { background: linear-gradient(160deg, #7a5bd0, #3b2a7a); }
+  .sh.green { background: linear-gradient(160deg, #3fae7d, #1d6048); }
+  .sh.teal { background: linear-gradient(160deg, #3aa6ae, #1d6068); }
+  .sh.gold { background: linear-gradient(160deg, #6e7f3a, #7a5420); }
+  .t-infra { background: linear-gradient(160deg, #1f5058, #121f22); }
+  .t-market { background: linear-gradient(160deg, #5a4420, #1f1a12); }
+  .tile.ready { border-color: rgba(143,168,74,.8); box-shadow: 0 0 18px rgba(143,168,74,.25); }
+  .tile .badge { position: absolute; top: 12px; right: 12px; left: 12px; width: fit-content; font-size: 13px; color: var(--gold);
+    padding: 6px 14px; border-radius: 999px; background: rgba(143,168,74,.16); border: 1px solid rgba(143,168,74,.5); }
+  .tile.mini { min-height: 150px; justify-content: flex-start; background: linear-gradient(160deg, var(--card-2), var(--card)); }
+  .tile.mini h4 { font-size: 18px; margin-top: 6px; }
+  .tile.mini p { max-width: 100%; color: var(--hint); }
+  .mi { width: 52px; height: 52px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .mi.gold { background: linear-gradient(160deg, #6e7f3a, #7a5420); }
+  .mi.teal { background: linear-gradient(160deg, #3aa6ae, #1d6068); }
+  .mi.ring { width: 58px; height: 58px; border-radius: 50%; flex: none; border: 2px solid rgba(143,168,74,.7); background: rgba(143,168,74,.12); }
+  .terr { margin-top: 14px; border-radius: 26px; padding: 18px 16px; border: 2px solid rgba(143,168,74,.7);
+    background: linear-gradient(160deg, #161b11, #12141a); }
+  .terr-top { display: flex; gap: 14px; align-items: flex-start; }
+  .terr h3 { font-size: 18px; margin-bottom: 8px; }
+  .terr p { font-size: 14px; color: #d0d3da; line-height: 1.9; }
+  .terr-btn { width: 100%; margin-top: 16px; padding: 16px; border-radius: 16px; cursor: pointer; font: inherit; font-size: 16px; color: var(--gold);
+    background: rgba(143,168,74,.1); border: 1px solid rgba(143,168,74,.5); }
+  .t-war { background: linear-gradient(160deg, #5a2a2a, #1f1418); }
+  .t-army { background: linear-gradient(160deg, #1f3a5c, #121a28); }
+  .t-dip { background: linear-gradient(160deg, #3d2a5a, #1a1424); }
+  .t-eco { background: linear-gradient(160deg, #1f4a3a, #121f1b); }
+  /* ترک کشور (برگه‌ی پایین) */
+  .smask { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.6); }
+  .sheet { position: fixed; z-index: 61; left: 0; right: 0; bottom: 0; max-height: 92vh; overflow-y: auto; border-radius: 28px 28px 0 0;
+    background: #11151c; border: 1px solid var(--line); padding: 10px 16px calc(20px + env(safe-area-inset-bottom)); }
+  .sheet .grab { width: 52px; height: 5px; border-radius: 999px; background: #3a4150; margin: 4px auto 14px; }
+  .sheet .sh-head { display: flex; align-items: center; justify-content: space-between; padding: 6px 4px 14px; border-bottom: 1px solid var(--line); font-size: 18px; }
+  .sheet .sx { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); background: rgba(255,255,255,.04); color: var(--hint); font-size: 18px; cursor: pointer; }
+  .lvbox { margin: 16px 0; padding: 18px 16px; border-radius: 24px; border: 1px solid rgba(231,76,76,.45); background: linear-gradient(160deg, #241d2b, #181b24); }
+  .lvbox h4 { font-size: 18px; margin-bottom: 8px; } .lvbox p { font-size: 14px; line-height: 2; color: #d7d9df; margin: 6px 0; }
+  .lvbox ul { margin: 8px 0; padding-inline-start: 22px; font-size: 14px; line-height: 2; color: #d7d9df; }
+  .lvbox .free { color: #49d49d; } .lvbox .paid { color: #ffb36b; }
+  .sheet .btns { display: flex; gap: 12px; margin-top: 8px; }
+  .sheet .btns button { flex: 1; padding: 18px 10px; border-radius: 18px; font: inherit; font-size: 18px; cursor: pointer; }
+  .sheet .yes { border: 0; color: #3a0d0d; font-weight: 700; background: linear-gradient(160deg, #ff9d8c, #e8575a); }
+  .sheet .yes:disabled { opacity: .4; }
+  .sheet .no { color: var(--gold); background: rgba(143,168,74,.08); border: 2px solid rgba(143,168,74,.55); }
+  /* منوی همبرگری */
+  .mmask { position: fixed; inset: 0; z-index: 40; }
+  .mpanel { position: fixed; z-index: 41; width: min(290px, 74vw); padding: 8px 0; border-radius: 24px; border: 1px solid var(--line);
+    background: rgba(18,22,30,.98); box-shadow: 0 18px 44px rgba(0,0,0,.6); direction: rtl; }
+  .mitem { display: flex; align-items: center; gap: 14px; width: 100%; padding: 17px 20px; background: none; border: 0; color: var(--text);
+    font: inherit; font-size: 16px; text-align: right; cursor: pointer; }
+  .mitem:active { background: rgba(255,255,255,.06); }
+  .mitem .mi2 { width: 26px; text-align: center; font-size: 18px; color: var(--gold); flex: none; }
+  .mitem.danger { color: #ff8a8a; } .mitem.danger .mi2 { color: #ff8a8a; }
+  /* اعلان‌ها */
+  .ibtn { position: relative; }
+  .bdg { position: absolute; top: -4px; right: -4px; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 999px; font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; background: #f0b84a; color: #2a1d00; border: 2px solid #12161d; }
+  .notifview { padding: 14px 14px calc(130px + env(safe-area-inset-bottom)); }
+  .nhead { display: flex; align-items: center; justify-content: space-between; margin: 6px 4px 14px; }
+  .nhead .cnt { color: var(--hint); font-size: 16px; } .nhead button { background: none; border: 0; color: var(--gold); font: inherit; font-size: 16px; cursor: pointer; }
+  .nev { display: flex; align-items: center; gap: 14px; padding: 16px; margin-bottom: 12px; border-radius: 22px; border: 1px solid var(--line);
+    background: linear-gradient(160deg, var(--card-2), var(--card)); }
+  .nev .ni2 { width: 62px; height: 62px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; font-size: 28px;
+    background: linear-gradient(160deg, #3b3070, #1f1a3d); border: 2px solid rgba(160,140,255,.45); }
+  .nev .ni2.season { background: linear-gradient(160deg, #6a4f1c, #2d2410); border-color: rgba(143,168,74,.6); }
+  .nev .tx { flex: 1; min-width: 0; font-size: 16px; line-height: 1.8; }
+  .nev .tx .flag { display: inline-flex; width: 28px; height: 28px; font-size: 14px; vertical-align: middle; margin-inline-start: 8px; border-width: 1px; box-shadow: none; }
+  .nev .sb { display: block; color: var(--hint); font-size: 14px; }
+  .nev .go { color: var(--hint); font-size: 20px; }
+  /* جدول جهانی (رتبه‌بندی) */
+  .rankview { padding: 14px 14px calc(130px + env(safe-area-inset-bottom)); }
+  .rach { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; margin-bottom: 14px; border-radius: 22px; cursor: pointer;
+    border: 1px solid var(--line); background: linear-gradient(160deg, var(--card-2), var(--card)); }
+  .rach b { font-size: 18px; } .rach .go { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .rach .money { color: var(--gold); font-weight: 700; font-size: 18px; direction: ltr; }
+  .rcard { border-radius: 26px; padding: 18px 16px; margin-bottom: 14px; border: 2px solid rgba(143,168,74,.6);
+    background: linear-gradient(160deg, #2a2417, #151a21 60%, #12201f); }
+  .rcard .rt { display: flex; align-items: center; justify-content: space-between; font-size: 18px; font-weight: 700; }
+  .rcard .rt .lf { display: flex; gap: 10px; align-items: center; }
+  .qbtn { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--hint); color: var(--hint); background: none; font-size: 16px; cursor: pointer; }
+  .livepill { font-size: 14px; padding: 6px 14px; border-radius: 999px; color: #49d49d; background: rgba(73,212,157,.12); border: 1px solid rgba(73,212,157,.5); }
+  .livepill.off { color: var(--hint); background: rgba(255,255,255,.05); border-color: var(--line); }
+  .rme { display: flex; align-items: center; gap: 18px; margin: 14px 4px; }
+  .rme .flag { width: 112px; height: 112px; font-size: 60px; border: 4px solid #c8793a; flex: none; }
+  .rme .nm { color: var(--hint); font-size: 16px; }
+  .rme .rk { font-size: 20px; } .rme .rk b { font-size: 60px; color: var(--gold); line-height: 1.1; margin: 0 6px; }
+  .rme .rk small { color: var(--hint); font-size: 18px; }
+  .tierchip { display: inline-block; margin-top: 6px; padding: 5px 16px; border-radius: 999px; font-size: 14px; font-weight: 700; color: #2a1500; background: linear-gradient(90deg, #e0a063, #b5703a); }
+  .tierchip.gold { background: linear-gradient(90deg, #ffe08a, #f2b84b); } .tierchip.silver { background: linear-gradient(90deg, #e6e9ef, #aab2c0); }
+  .rst { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px; }
+  .rst > div { text-align: center; padding: 12px 2px; border-radius: 18px; border: 1px solid var(--line); background: rgba(255,255,255,.03); }
+  .rst .ic { font-size: 16px; color: var(--hint); } .rst b { display: block; font-size: 32px; } .rst span { font-size: 13px; color: var(--hint); }
+  .rfoot { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 14px; font-size: 14px; display: flex; gap: 8px; align-items: center; }
+  .rbox { border-radius: 24px; padding: 16px; margin-bottom: 14px; border: 1px solid var(--line); background: linear-gradient(160deg, var(--card-2), var(--card)); }
+  .rbox h4 { font-size: 16px; margin-bottom: 8px; } .rbox p { font-size: 14px; line-height: 2; color: #d0d3da; }
+  .rbox.dash { border-style: dashed; color: var(--hint); }
+  .rtabs { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 12px; margin-bottom: 4px; scrollbar-width: none; }
+  .rtabs::-webkit-scrollbar { display: none; }
+  .rtab { flex: none; min-width: 108px; padding: 12px 16px; border-radius: 18px; cursor: pointer; font: inherit; font-size: 14px; text-align: center; line-height: 1.5;
+    color: var(--text); background: rgba(143,168,74,.05); border: 2px solid rgba(143,168,74,.5); }
+  .rtab.on { background: linear-gradient(160deg, #8fa84a, #6e7f3a); color: #2a1d00; font-weight: 700; }
+  .podium { display: flex; align-items: flex-end; gap: 6px; margin: 26px 0 16px; direction: rtl; }
+  .pcol { flex: 1; text-align: center; min-width: 0; }
+  .pcol .pf { position: relative; display: inline-block; }
+  .pcol .flag { width: 92px; height: 92px; font-size: 48px; margin: 0 auto; border: 4px solid #c8793a; }
+  .pcol.p1 .flag { width: 124px; height: 124px; font-size: 66px; border-color: #cfd8ff; box-shadow: 0 0 22px rgba(160,180,255,.5); }
+  .pcol.p2 .flag { border-color: #b8bcc6; } .pcol .crown { font-size: 30px; display: block; }
+  .pcol .pn { font-size: 16px; font-weight: 700; margin: 8px 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pcol .prz { display: inline-block; font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.05); margin-bottom: 10px; }
+  .pcol .step { border-radius: 22px 22px 0 0; font-size: 52px; font-weight: 700; padding: 18px 0 28px; background: linear-gradient(180deg, #2c3138, #1b1e24); }
+  .pcol.p1 .step { padding: 34px 0 40px; background: linear-gradient(180deg, #34505f, #1b2a33); }
+  .pcol.p3 .step { padding: 14px 0 20px; background: linear-gradient(180deg, #4a3322, #231a14); }
+  .prizes { border-radius: 26px; padding: 16px; margin-bottom: 14px; border: 2px solid rgba(143,168,74,.6); background: #151921; }
+  .prizes h4 { font-size: 16px; margin-bottom: 8px; }
+  .prow { display: flex; align-items: center; gap: 14px; padding: 12px 2px; font-size: 16px; font-weight: 700; border-top: 1px solid var(--line); }
+  .prow:first-of-type { border-top: 0; }
+  .medal { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex: none; color: #2a1d00; background: linear-gradient(160deg, #ffe08a, #6e7f3a); }
+  .medal.m2 { background: linear-gradient(160deg, #f3f5f9, #9aa1ae); } .medal.m3 { background: linear-gradient(160deg, #e0a063, #8a4f24); color: #fff; }
+  .rrow { display: flex; align-items: center; gap: 12px; padding: 14px; margin-bottom: 10px; border-radius: 22px; border: 1px solid var(--line); background: linear-gradient(160deg, var(--card-2), var(--card)); }
+  .rrow .num { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--hint); flex: none; }
+  .rrow .flag { width: 54px; height: 54px; font-size: 28px; flex: none; }
+  .rrow .info { flex: 1; min-width: 0; } .rrow .info b { font-size: 18px; display: block; margin-bottom: 8px; }
+  .chips { display: flex; gap: 6px; direction: rtl; flex-wrap: wrap; }
+  .chips span { font-size: 14px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.06); color: #cfd3da; white-space: nowrap; }
+  .chips span.top { background: rgba(120,170,230,.2); color: #9cc4f5; }
+  /* صفحه‌ی تأیید کشور */
+  .cview { padding: 14px 14px calc(40px + env(safe-area-inset-bottom)); min-height: 100vh; }
+  .cview .backlnk { display: flex; align-items: center; gap: 6px; color: var(--gold); font-size: 14px; background: none; border: 0;
+    font-family: inherit; cursor: pointer; padding: 14px 4px 18px; }
+  .cbox { border-radius: 26px; padding: 22px 16px; margin-bottom: 16px; background: linear-gradient(160deg, var(--card-2), var(--card)); border: 1px solid var(--line); }
+  .cbox.head { text-align: center; }
+  .cbox.head .flag { width: 100px; height: 100px; margin: 4px auto 14px; font-size: 54px; border: 3px solid #cfd3da; }
+  .cbox.head .cn { font-size: 28px; font-weight: 700; }
+  .cbox.head .cr { color: var(--hint); font-size: 16px; margin-top: 10px; direction: ltr; }
+  .cbox.head.t-plus { border-color: rgba(255,214,120,.7); }
+  .cbox.head.t-premium { border-color: rgba(150,175,255,.6); }
+  .cbox.rules { border-color: rgba(143,168,74,.55); }
+  .cbox.rules .rt { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .cbox.rules .rsub { color: var(--hint); font-size: 14px; line-height: 1.8; margin-bottom: 10px; }
+  .cbox.rules .rwrap { position: relative; }
+  .cbox.rules .rlist { max-height: min(52vh, 380px); overflow-y: scroll; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; margin: 0; padding: 12px 34px 56px 14px; border-radius: 16px; background: rgba(0,0,0,.25); border: 1.5px solid rgba(242,182,106,.55); font-size: 14px; line-height: 1.9; scrollbar-width: auto; scrollbar-color: #f2b66a rgba(255,255,255,.12); }
+  .cbox.rules .rlist::-webkit-scrollbar { width: 8px; }
+  .cbox.rules .rlist::-webkit-scrollbar-track { background: rgba(255,255,255,.12); border-radius: 8px; }
+  .cbox.rules .rlist::-webkit-scrollbar-thumb { background: #f2b66a; border-radius: 8px; }
+  .cbox.rules .rlist li { margin-bottom: 8px; }
+  .cbox.rules .rmore { position: absolute; left: 0; right: 0; bottom: 0; height: 54px; border-radius: 0 0 16px 16px; pointer-events: none; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px;
+    background: linear-gradient(to bottom, rgba(20,24,16,0), rgba(20,24,16,.96) 70%); transition: opacity .25s; }
+  .cbox.rules .rmore span { font-size: 13px; font-weight: 700; color: #1b1608; background: #f2b66a; padding: 4px 12px; border-radius: 999px; animation: rbounce 1.2s ease-in-out infinite; }
+  .cbox.rules .rwrap.atend .rmore { opacity: 0; }
+  @keyframes rbounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+  .cbox.rules .rprog { height: 5px; border-radius: 5px; background: rgba(255,255,255,.12); margin: 10px 2px 0; overflow: hidden; direction: ltr; }
+  .cbox.rules .rprog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #f2b66a, #7fd99a); transition: width .15s; }
+  .cbox.rules .rwrap.shake { animation: rshake .5s; }
+  @keyframes rshake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-7px); } 40%,80% { transform: translateX(7px); } }
+  .cbox.rules .rhint { color: #f2b66a; font-size: 14px; font-weight: 700; margin: 10px 4px 0; }
+  .cbox.rules .rhint.flash { animation: rflash .6s 2; }
+  @keyframes rflash { 50% { color: #fff; } }
+  .cbox.rules .rhint.ok { color: #7fd99a; }
+  .cbox.rules .rchk { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+  .cbox.rules .rchk.locked { opacity: .5; }
+  .cbox.rules .rchk.pulse { animation: rpulse .6s 3; }
+  @keyframes rpulse { 50% { transform: scale(1.04); color: #7fd99a; } }
+  .cbox.rules .rchk input { width: 24px; height: 24px; flex: none; }
+  .cbtn:disabled, .cbtn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+  .cbox .row { font-size: 16px; margin: 10px 4px; line-height: 1.8; }
+  .cbox .row b { font-weight: 700; }
+  .cbox .row small { display: block; color: var(--hint); font-size: 14px; margin-top: -2px; }
+  .cbox.warn { border-color: rgba(231,76,76,.45); background: linear-gradient(160deg, #241a1d, #181b22); color: #ff6b6b; font-size: 16px; line-height: 1.9; }
+  .cbox.warn b { color: #ff5252; }
+  .cbtn { width: 100%; padding: 20px 14px; border-radius: 20px; cursor: pointer; font: inherit; font-size: 16px; color: var(--gold);
+    background: linear-gradient(160deg, rgba(143,168,74,.28), rgba(143,168,74,.1)); border: 2px solid rgba(143,168,74,.7); }
+  .cbtn:active { transform: scale(.99); }
+  /* صفحه‌ی انتخاب دنیا (سیزن) */
+  .lobby { padding: 14px 14px calc(40px + env(safe-area-inset-bottom)); }
+  .lbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .lbar .brand { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .shopcard {
+    display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 22px; cursor: pointer;
+    background: linear-gradient(160deg, rgba(143,168,74,.22), rgba(143,168,74,.06)); border: 1px solid rgba(143,168,74,.55);
+  }
+  .shopcard .ico { width: 58px; height: 58px; border-radius: 18px; display: flex; align-items: center; justify-content: center;
+    font-size: 28px; background: rgba(143,168,74,.2); border: 1px solid rgba(143,168,74,.6); flex: none; }
+  .shopcard b { font-size: 16px; color: var(--gold); display: block; }
+  .shopcard span { font-size: 13px; color: #d0d3da; line-height: 1.7; }
+  .lobby h2 { font-size: 22px; margin: 26px 2px 6px; }
+  .lobby .lead { color: var(--hint); font-size: 13px; line-height: 1.9; margin: 0 2px 14px; }
+  .world {
+    display: flex; align-items: center; gap: 14px; padding: 16px; margin-bottom: 12px; border-radius: 22px; cursor: pointer;
+    background: linear-gradient(160deg, var(--card-2), var(--card)); border: 1px solid var(--line); width: 100%;
+    font: inherit; color: var(--text); text-align: right;
+  }
+  .world.live { border-color: rgba(143,168,74,.6); }
+  .world:active { transform: scale(.99); }
+  .world .wg { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 28px; flex: none; background: radial-gradient(circle at 35% 30%, #5b86d6, #243b6b); border: 2px solid rgba(255,255,255,.25); }
+  .world.past .wg { background: radial-gradient(circle at 35% 30%, #6b6f7a, #2c2f37); }
+  .world .wt { flex: 1; min-width: 0; }
+  .world .wn { font-size: 20px; font-weight: 700; color: var(--gold); }
+  .world .wm { font-size: 13px; color: var(--hint); margin-top: 2px; }
+  .world .go { color: var(--hint); font-size: 20px; }
+  .empty { grid-column: 1 / -1; text-align: center; color: var(--hint); padding: 40px 0; }
+
+  /* دیده‌بان */
+  .scoutview { padding: 14px 14px calc(40px + env(safe-area-inset-bottom)); }
+  .scoutview .sh1 { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 18px 4px 6px; }
+  .scoutview .sh1 h2 { display: flex; align-items: center; gap: 12px; font-size: 30px; line-height: 1.5; font-weight: 700; }
+  .scoutview .sh1 h2 svg { width: 30px; height: 30px; flex: none; }
+  .scoutview .qbtn { flex: none; }
+  .scoutview .slead { color: #a9a79e; font-size: 14px; line-height: 1.9; margin: 2px 4px 18px; }
+  .stabs { display: flex; gap: 9px; margin: 0 2px 16px; flex-wrap: wrap; }
+  .stab {
+    min-width: 82px; padding: 9px 14px 8px; border-radius: 16px; cursor: pointer; font: inherit; text-align: center; line-height: 1.55;
+    color: var(--text); background: rgba(143,168,74,.07); border: 2px solid rgba(143,168,74,.5);
+  }
+  .stab span { display: block; font-size: 14px; }
+  .stab small { display: block; font-size: 14px; color: var(--hint); }
+  .stab.on { background: linear-gradient(160deg, #e0b25a, #d3a14a); border-color: #e0b25a; color: #2a1d00; }
+  .stab.on small { color: #4a3a14; }
+  .sw {
+    display: flex; align-items: center; gap: 14px; width: 100%; padding: 18px 18px 18px 14px; margin-bottom: 14px; border-radius: 26px; cursor: pointer;
+    font: inherit; color: var(--text); text-align: right;
+    background: linear-gradient(160deg, rgba(255,255,255,.055), rgba(255,255,255,.02)), var(--card);
+    border: 1px solid #2f343f;
+  }
+  .sw:active { transform: scale(.99); }
+  .sw .sic { width: 56px; height: 56px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center;
+    border: 2px solid rgba(255,255,255,.28); box-shadow: 0 2px 10px rgba(0,0,0,.45); }
+  .sw .sic svg { width: 32px; height: 32px; }
+  .sw .sbody { flex: 1; min-width: 0; }
+  .sw .stop { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; }
+  .sw .sn { font-size: 20px; font-weight: 700; color: #f6f1e4; line-height: 1.5; }
+  .sw .sb { font-size: 13px; line-height: 1.6; padding: 3px 13px; border-radius: 999px; white-space: nowrap; }
+  .sw .sb.cf { color: #7fe0b6; background: #1c3a33; }
+  .sw .sb.reg { color: var(--gold); background: rgba(143,168,74,.16); }
+  .sw .sb.end { color: var(--hint); background: rgba(255,255,255,.07); }
+  .sw .ssub { font-size: 14px; color: #9ea3ad; margin-top: 4px; }
+  .sw .sbar { height: 6px; border-radius: 999px; background: #353841; margin-top: 12px; overflow: hidden; }
+  .sw .sbar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #f0c96a, #d9701f); }
+  .sw.past .sbar i { background: #6b6f7a; }
+  .sw .sgo { color: #8d93a0; font-size: 36px; line-height: 1; flex: none; }
+  .wc0 { background: radial-gradient(circle at 35% 30%, #4fa6a8, #1b5b62); }
+  .wc1 { background: radial-gradient(circle at 35% 30%, #e08a4a, #8a4116); }
+  .wc2 { background: radial-gradient(circle at 35% 30%, #d5a24a, #7d5516); }
+  .wc3 { background: radial-gradient(circle at 35% 30%, #8a6ad8, #3f2f86); }
+  .wc4 { background: radial-gradient(circle at 35% 30%, #43a56e, #1c5a3a); }
+  .wc5 { background: radial-gradient(circle at 35% 30%, #d86a9a, #7e2a52); }
+  .wc6 { background: radial-gradient(circle at 35% 30%, #5b86d6, #243b6b); }
+  .wc7 { background: radial-gradient(circle at 35% 30%, #d9625a, #7a2424); }
+  /* ارتباطات */
+  .commview { padding: 14px 14px calc(130px + env(safe-area-inset-bottom)); }
+  .cmhero {
+    margin: -14px -14px 0; padding: 14px 14px 4px;
+    background: radial-gradient(90% 55% at 10% 0%, rgba(150,105,30,.36), transparent 70%), linear-gradient(180deg, #17120b 0%, #10131a 100%);
+  }
+  .cmbar {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin: 4px 0 14px; border-radius: 24px;
+    border: 1px solid #2f343f; background: rgba(255,255,255,.03);
+  }
+  .cmbar b { display: flex; align-items: center; gap: 10px; font-size: 18px; }
+  .cmbar .money { margin-right: auto; color: var(--gold); font-weight: 700; font-size: 18px; direction: ltr; }
+  .cmbar .go {
+    width: 46px; height: 46px; border-radius: 50%; border: 1px solid #4a505d; flex: none; line-height: 1;
+    display: flex; align-items: center; justify-content: center; color: var(--text); font-size: 28px;
+  }
+  .cmtabs { display: flex; gap: 10px; margin-bottom: 14px; }
+  .cmtab {
+    flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 14px 2px; border-radius: 18px;
+    cursor: pointer; font: inherit; font-size: 14px; white-space: nowrap; color: var(--text);
+    background: rgba(120,90,35,.22); border: 2px solid rgba(190,150,70,.55);
+  }
+  .cmtab.on { background: linear-gradient(160deg, #f59a3d, #d9701f); border-color: #f59a3d; color: #2a1d00; font-weight: 700; }
+  .cmtab svg { width: 18px; height: 18px; flex: none; fill: currentColor; }
+  .cmcomp { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .cmpost {
+    display: flex; align-items: center; justify-content: center; gap: 12px; flex: none; padding: 14px 26px; border-radius: 999px; cursor: pointer;
+    font: inherit; font-size: 18px; font-weight: 700; color: #2a1d00; border: 2px solid rgba(255,230,160,.5);
+    background: linear-gradient(160deg, #ffb866, #d9701f); box-shadow: 0 6px 20px rgba(143,168,74,.2);
+  }
+  .cmpost svg { width: 26px; height: 26px; fill: currentColor; }
+  .cmpost:disabled { opacity: .45; }
+  .cmleft { color: var(--hint); font-size: 14px; }
+  .cmnote {
+    display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 2px 16px; text-align: right; cursor: pointer;
+    background: none; border: 0; font: inherit; font-size: 14px; color: var(--gold);
+  }
+  .cmnote.off { color: var(--hint); }
+  .cmcard { position: relative; margin: 0 -14px; padding: 16px 14px 16px; overflow: hidden; background: #0d1016; border-top: 1px solid rgba(255,255,255,.06); }
+  .cmimg {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .5;
+    filter: grayscale(1) contrast(1.05) brightness(.75); transition: opacity .3s, filter .3s;
+  }
+  .cmshade { position: absolute; inset: 0; transition: opacity .3s; background: linear-gradient(180deg, rgba(13,16,22,.1) 0%, rgba(13,16,22,.55) 45%, rgba(13,16,22,.94) 100%); }
+  .cmcard.showimg .cmimg { opacity: 1; filter: none; }
+  .cmcard.showimg .cmshade { opacity: .2; }
+  .cmin { position: relative; }
+  .cmtop { display: flex; align-items: flex-start; justify-content: space-between; min-height: 220px; }
+  .cmwho { display: flex; align-items: center; gap: 14px; }
+  .cmwho .flag { width: 64px; height: 64px; font-size: 36px; border-width: 3px; border-color: rgba(255,255,255,.35); }
+  .cmwho .nm { font-size: 22px; font-weight: 700; line-height: 1.4; }
+  .cmwho .tm { font-size: 14px; color: #b3b6bd; }
+  .cmchip { padding: 8px 16px; border: 0; border-radius: 999px; cursor: pointer; font: inherit; font-size: 13px; color: #d6d8de; background: rgba(30,33,40,.88); }
+  .cmprog { display: flex; direction: rtl; height: 12px; border-radius: 999px; overflow: hidden; background: #3a3f4a; }
+  .cmprog i { display: block; height: 100%; transition: width .4s; }
+  .cmprog .cms { background: linear-gradient(90deg, #4fd9a0, #7de8bd); }
+  .cmprog .cmc { background: linear-gradient(90deg, #f28b8b, #e8696e); }
+  .cmcnt { display: flex; justify-content: space-between; margin: 8px 2px 14px; font-size: 14px; font-weight: 700; }
+  .cmcnt .cms { color: #5fdcab; } .cmcnt .cmc { color: #f27c80; }
+  .cmtext { margin-bottom: 14px; font-size: 18px; line-height: 2.05; color: #f4f1e8; white-space: pre-wrap; word-break: break-word; }
+  .cmvoters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+  .cmv { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; border: 1px solid; background: rgba(15,18,24,.65); }
+  .cmv.cms { border-color: rgba(80,200,150,.55); color: #8be8c2; }
+  .cmv.cmc { border-color: rgba(235,100,105,.6); color: #f0a0a3; }
+  .cmv .flag { width: 30px; height: 30px; font-size: 16px; border-width: 1px; box-shadow: none; }
+  .cmv .flag + .flag { margin-inline-start: -12px; }
+  .cmv svg { width: 20px; height: 20px; flex: none; }
+  .cmvote { display: flex; gap: 14px; }
+  .cmvote button {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px 8px; border-radius: 24px; cursor: pointer;
+    font: inherit; font-size: 20px; font-weight: 700; color: var(--gold); background: rgba(12,15,20,.78); border: 1px solid #343a47;
+  }
+  .cmvote button svg { width: 24px; height: 24px; }
+  .cmvote button.on.cms { color: #7be8bb; border-color: rgba(80,200,150,.85); background: rgba(40,120,90,.22); }
+  .cmvote button.on.cmc { color: #f58b8f; border-color: rgba(235,100,105,.85); background: rgba(150,50,55,.22); }
+  .cmvote button:disabled:not(.on) { opacity: .4; }
+  /* اقتصاد */
+  .noseason { position: fixed; inset: 0; z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; padding: 32px 28px; text-align: center; background: radial-gradient(circle at 50% 30%, #1d2335, #0b0e16 70%); }
+  .noseason[hidden] { display: none; }
+  .noseason { overflow: hidden; }
+  .noseason > * { position: relative; z-index: 2; }
+  .noseason .nsstars { position: absolute; inset: 0; z-index: 0; opacity: .7;
+    background-image: radial-gradient(1.5px 1.5px at 12% 18%, #fff9, transparent), radial-gradient(1px 1px at 78% 12%, #fff8, transparent), radial-gradient(1.5px 1.5px at 88% 40%, #8fa84aaa, transparent),
+      radial-gradient(1px 1px at 30% 70%, #fff7, transparent), radial-gradient(1.5px 1.5px at 66% 84%, #fff8, transparent), radial-gradient(1px 1px at 8% 88%, #8fa84aaa, transparent), radial-gradient(1px 1px at 50% 8%, #fff7, transparent); }
+  .noseason .nslogo { width: min(190px, 50vw); animation: nsFloat 3.2s ease-in-out infinite; filter: drop-shadow(0 0 22px rgba(143,168,74,.38)); }
+  .noseason .nslogo svg { width: 100%; height: auto; display: block; }
+  .noseason .nsring { transform-origin: 100px 104px; animation: nsOrb 16s linear infinite; }
+  .noseason .nshand { transform-origin: 150px 150px; animation: nsOrb 6s linear infinite; }
+  .noseason .nstitle { font-size: clamp(32px, 10vw, 46px); font-weight: 800; letter-spacing: 1px; white-space: nowrap; margin-top: 4px;
+    background: linear-gradient(180deg, #ffd9ae, #8fa84a 55%, #4f5c28); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 10px rgba(143,168,74,.3)); }
+  .noseason .nstag { font-size: 13px; color: #a9b4c2; margin-top: -6px; }
+  .noseason h2 { margin-top: 10px; }
+  .noseason p { padding: 14px 16px; border-radius: 18px; border: 1px solid rgba(143,168,74,.25); background: rgba(255,255,255,.04); }
+  .noseason .nsdots { display: flex; gap: 8px; margin-top: 2px; }
+  .noseason .nsdots i { width: 9px; height: 9px; border-radius: 50%; background: #8fa84a; opacity: .25; animation: nsDot 1.2s ease-in-out infinite; }
+  .noseason .nsdots i:nth-child(2) { animation-delay: .2s; } .noseason .nsdots i:nth-child(3) { animation-delay: .4s; }
+  @keyframes nsFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  @keyframes nsOrb { to { transform: rotate(360deg); } }
+  @keyframes nsDot { 0%, 100% { opacity: .25; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
+  @media (prefers-reduced-motion: reduce) { .noseason .nslogo, .noseason .nsring, .noseason .nshand, .noseason .nsdots i { animation: none; } }
+  .noseason h2 { font-size: 24px; font-weight: 700; color: var(--gold, #8fa84a); }
+  .noseason p { font-size: 16px; line-height: 2.1; color: #c4c8d1; max-width: 360px; }
+  .noseason button { margin-top: 10px; padding: 14px 34px; border-radius: 999px; border: 1px solid var(--gold, #8fa84a); cursor: pointer; font: inherit; font-size: 16px;
+    color: var(--gold, #8fa84a); background: rgba(143,168,74,.08); }
+  .joingate { overflow-y: auto; justify-content: flex-start; padding: calc(40px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom)); }
+  .joingate .jgi { font-size: 58px; line-height: 1; margin-top: auto; }
+  .joingate .jglist { display: flex; flex-direction: column; gap: 10px; width: min(340px, 88vw); margin-top: 6px; }
+  .joingate .jglist button { width: 100%; margin-top: 0; padding: 13px 18px; }
+  .joingate .jgok { margin-top: 14px; margin-bottom: auto; min-width: 200px; }
+  .joingate .jgok:disabled { opacity: .55; }
+  .ecoview { padding: 14px 14px calc(130px + env(safe-area-inset-bottom)); }
+  .ecpanel { border-radius: 26px; padding: 18px 16px; margin-bottom: 14px; border: 2px solid rgba(143,168,74,.55);
+    background: linear-gradient(160deg, rgba(150,105,30,.28), var(--card)); }
+  .ecpanel .lbl { color: var(--hint); font-size: 14px; }
+  .ecpanel .big { font-size: 34px; font-weight: 700; margin: 4px 0 2px; direction: ltr; text-align: right; }
+  .ecpanel .sub { color: #b3b6bd; font-size: 14px; }
+  .ecpanel hr { border: 0; border-top: 1px solid rgba(255,255,255,.08); margin: 14px 0; }
+  .ecacc { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .ecacc b { color: var(--gold); font-size: 20px; direction: ltr; }
+  .ecacc span { color: #b3b6bd; font-size: 14px; }
+  .ecbar { height: 12px; border-radius: 999px; background: rgba(255,255,255,.10); overflow: hidden; direction: ltr; margin-bottom: 14px; }
+  .ecbar i { display: block; height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, #4fd9a0, #8fa84a); }
+  .eccollect { width: 100%; padding: 16px; border: 0; border-radius: 18px; cursor: pointer; font: inherit; font-size: 16px; font-weight: 700; color: #2a1d00;
+    background: linear-gradient(160deg, #ffb866, #d9701f); }
+  .eccollect:disabled { opacity: .4; }
+  .ectabs { display: flex; gap: 10px; overflow-x: auto; margin: 0 -14px 12px; padding: 2px 14px 4px; scrollbar-width: none; }
+  .ectabs::-webkit-scrollbar { display: none; }
+  .ectab { flex: none; padding: 10px 16px; border-radius: 20px; cursor: pointer; font: inherit; font-size: 14px; color: var(--gold); text-align: center;
+    background: rgba(150,105,30,.12); border: 2px solid rgba(143,168,74,.5); }
+  .ectab small { display: block; font-size: 14px; color: var(--hint); }
+  .ectab.on { background: linear-gradient(160deg, #f59a3d, #d9701f); border-color: #f59a3d; color: #2a1d00; font-weight: 700; }
+  .ectab.on small { color: #4a3600; }
+  .ecsort { display: flex; align-items: center; gap: 10px; margin: 0 2px 14px; color: var(--hint); font-size: 14px; }
+  .ecsort button { padding: 8px 16px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 14px; color: var(--gold); background: none; border: 1.5px solid rgba(143,168,74,.5); }
+  .ecsort button.on { background: var(--gold-soft); border-color: var(--gold); font-weight: 700; }
+  .ecsyn { border-radius: 24px; padding: 16px; margin-bottom: 14px; border: 1px solid var(--line); background: linear-gradient(160deg, var(--card-2), var(--card)); }
+  .ecsyn h4 { font-size: 16px; margin-bottom: 4px; }
+  .ecsyn p { color: var(--hint); font-size: 14px; line-height: 1.8; }
+  .ecsyn .tier { display: inline-block; margin: 8px 0 6px; padding: 6px 14px; border-radius: 999px; font-size: 14px; background: rgba(255,255,255,.06); color: #d0d3da; }
+  .ecsyn .tier b { color: var(--gold); }
+  .ecsyn .sr { display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-top: 1px solid rgba(255,255,255,.07); font-size: 16px; }
+  .ecsyn .sr .bar { flex: 1; height: 8px; border-radius: 999px; background: rgba(255,255,255,.1); overflow: hidden; direction: rtl; }
+  .ecsyn .sr .bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #4fd9a0, #8fa84a); }
+  .ecsyn .sr .n { min-width: 36px; color: var(--hint); font-size: 14px; direction: ltr; text-align: left; }
+  .ecsyn .sr.done .n { color: #4fd9a0; }
+  .ecitem { padding: 14px; margin-bottom: 14px; border-radius: 24px; border: 1px solid var(--line); background: linear-gradient(160deg, var(--card-2), var(--card)); }
+  .ecitem.own { border-color: rgba(143,168,74,.45); background: linear-gradient(160deg, rgba(150,105,30,.22), var(--card)); }
+  .ecitem.off { border-style: dashed; border-width: 2px; }
+  .ecitem .top { display: flex; align-items: center; gap: 12px; }
+  .ecitem .ic { width: 54px; height: 54px; flex: none; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(143,168,74,.45); }
+  .ecitem .mid { flex: 1; min-width: 0; }
+  .ecitem .nm { font-size: 18px; font-weight: 700; }
+  .ecitem .st { text-align: left; flex: none; max-width: 42%; color: var(--hint); font-size: 14px; }
+  .ecitem .st b { display: block; font-size: 18px; color: #4fd9a0; direction: ltr; }
+  .ecpips { display: flex; gap: 6px; margin: 8px 0 2px; direction: rtl; }
+  .ecpips i { flex: 1; height: 7px; border-radius: 4px; background: rgba(255,255,255,.12); }
+  .ecpips i.on { background: linear-gradient(90deg, #8fa84a, #d9701f); }
+  .ecchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .ecchip { padding: 6px 11px; border-radius: 999px; font-size: 14px; white-space: nowrap; border: 1px solid var(--line); background: rgba(255,255,255,.04); direction: rtl; }
+  .ecchip.el { color: var(--gold); }
+  .ecchip.up { color: #4fd9a0; border-color: rgba(79,217,160,.35); }
+  .ecbl { margin: 12px 0 0; }
+  .ecbl .t { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; color: var(--gold); font-size: 14px; }
+  .ecbl .t span:last-child { color: #d0d3da; direction: rtl; }
+  .ecbl .bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,.1); overflow: hidden; direction: rtl; }
+  .ecbl .bar i { display: block; height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, #4fd9a0, #8fa84a); transition: width 1s linear; }
+  .ecitem.bld { border-color: rgba(79,217,160,.45); }
+  .ecbuy { width: 100%; padding: 16px 12px; border-radius: 20px; cursor: pointer; font: inherit; font-size: 18px; font-weight: 700; text-align: center;
+    color: var(--gold); background: rgba(150,105,30,.2); border: 2px solid rgba(143,168,74,.55); }
+  .ecbuy:disabled { opacity: .45; }
+  .ecbuy.max { color: var(--hint); background: transparent; border: 1px solid var(--line); }
+  /* زیرساخت */
+  .inpow { border-radius: 26px; padding: 18px 16px; margin-bottom: 14px; border: 2px solid rgba(79,217,160,.5);
+    background: linear-gradient(160deg, rgba(31,80,88,.55), var(--card)); }
+  .inpow.short { border-color: rgba(255,122,99,.65); background: linear-gradient(160deg, rgba(120,40,30,.45), var(--card)); }
+  .inpow .lbl { color: var(--hint); font-size: 14px; }
+  .inpow .big { font-size: 32px; font-weight: 700; margin: 4px 0 2px; direction: ltr; text-align: right; }
+  .inpow .big small { font-size: 14px; color: var(--hint); font-weight: 400; }
+  .inpow .sub { color: #b3b6bd; font-size: 14px; line-height: 1.9; }
+  .inpow .sub b { color: #4fd9a0; }
+  .inpow.short .sub b { color: #ff9d8a; }
+  .inpow .pbar { height: 12px; border-radius: 999px; background: rgba(255,255,255,.10); overflow: hidden; direction: ltr; margin: 12px 0; }
+  .inpow .pbar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #4fd9a0, #8fa84a); }
+  .inpow.short .pbar i { background: linear-gradient(90deg, #ff7a63, #8fa84a); }
+  .ecsyn .sr .v { margin-inline-start: auto; color: var(--gold); font-weight: 700; direction: ltr; }
+  .ecitem .dsc { color: var(--hint); font-size: 14px; line-height: 1.8; margin: 8px 2px 0; }
+  .ecpanel .inh { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+  .ecpanel .inh b { font-size: 20px; } .ecpanel .inh .bg { font-size: 34px; font-weight: 700; direction: ltr; }
+  .ecpanel .inh .mut { font-size: 14px; }
+  .inrow { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; font-size: 16px; }
+  .inrow.sm { font-size: 14px; padding: 5px 14px; } .inrow.tap { cursor: pointer; }
+  .inrow .pos, .ecpanel .sub.pos, .pos { color: #4fd9a0; } .neg { color: #ff7a7a; } .mut { color: var(--hint); }
+  .ecpanel .sub.neg { color: #ff9d8a; margin-top: 6px; }
+  .ingrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .inbx { border: 1px solid var(--line); border-radius: 18px; padding: 12px; background: rgba(255,255,255,.03); font-size: 14px; line-height: 1.9; }
+  .inbx b { display: block; font-size: 22px; direction: ltr; text-align: right; }
+  .infhead { display: flex; align-items: center; gap: 10px; margin: 2px 2px 8px; }
+  .infhead b { font-size: 22px; } .infhead .mut { flex: 1; font-size: 14px; }
+  .indiv { margin: 14px 4px 8px; color: var(--hint); font-size: 14px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  /* گفتگو */
+  .chcomp { display: flex; gap: 10px; align-items: flex-end; margin: 4px 0 8px; }
+  .chin {
+    flex: 1; min-width: 0; min-height: 52px; max-height: 120px; padding: 12px 16px; border-radius: 20px; resize: none; direction: rtl;
+    font: inherit; font-size: 14px; line-height: 1.7; color: var(--text); background: var(--card); border: 1px solid var(--line);
+  }
+  .chin:focus-visible { outline: 2px solid var(--gold); }
+  .chsend {
+    flex: none; width: 52px; height: 52px; border: 0; border-radius: 50%; cursor: pointer; font-size: 20px; color: #2a1d00;
+    background: linear-gradient(160deg, #ffb866, #d9701f);
+  }
+  .chsend:disabled { opacity: .4; }
+  .chcnt { margin: 0 4px 10px; color: var(--hint); font-size: 13px; text-align: left; direction: ltr; }
+  .chmsg { display: flex; gap: 10px; align-items: flex-start; padding: 10px 2px; border-top: 1px solid rgba(255,255,255,.06); }
+  .chmsg .flag { width: 40px; height: 40px; font-size: 20px; flex: none; }
+  .chbody { flex: 1; min-width: 0; padding: 8px 12px; border-radius: 16px; background: rgba(255,255,255,.04); border: 1px solid transparent; }
+  .chmsg.own .chbody { border-color: rgba(143,168,74,.5); background: rgba(150,105,30,.14); }
+  .chhead { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 2px; font-size: 13px; color: #b3b6bd; }
+  .chhead b { color: var(--gold); font-size: 14px; }
+  .chtext { font-size: 14px; line-height: 1.9; color: #f4f1e8; white-space: pre-wrap; word-break: break-word; }
+  .cmfoot { margin-top: 14px; color: #8b909c; font-size: 14px; line-height: 1.8; }
+  .cmta {
+    width: 100%; min-height: 150px; margin: 14px 0 6px; padding: 14px 16px; border-radius: 20px; resize: none; direction: rtl;
+    font: inherit; font-size: 16px; line-height: 1.9; color: var(--text); background: var(--card); border: 1px solid var(--line);
+  }
+  .cmta:focus-visible { outline: 2px solid var(--gold); }
+  .cmmeta { display: flex; justify-content: space-between; margin-bottom: 14px; color: var(--hint); font-size: 13px; }
+  .cmsend {
+    width: 100%; padding: 18px; border: 0; border-radius: 18px; cursor: pointer; font: inherit; font-size: 18px; font-weight: 700;
+    color: #2a1d00; background: linear-gradient(160deg, #ffb866, #d9701f);
+  }
+  .cmsend:disabled { opacity: .4; }
+  /* طرح ویژه‌ی کشورهای Premium Plus و Premium */
+  @property --a { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+  @keyframes spinb { to { --a: 360deg; } }
+  @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+  .c.t-plus, .c.t-premium { border: 2px solid transparent; min-height: 150px; animation: spinb 7s linear infinite; }
+  .c.t-plus {
+    background:
+      radial-gradient(120% 80% at 100% 0%, rgba(255,205,90,.34), transparent 55%),
+      radial-gradient(90% 60% at 0% 100%, rgba(160,185,85,.16), transparent 60%),
+      linear-gradient(160deg, #3d3015, #17130b) padding-box,
+      conic-gradient(from var(--a), #fff3c4, #f2b84b, #8a5b12, #ffe08a, #b87a1c, #fff3c4) border-box;
+    box-shadow: 0 8px 26px rgba(255,185,60,.22), 0 0 0 1px rgba(255,214,120,.12) inset;
+  }
+  .c.t-premium {
+    background:
+      radial-gradient(120% 80% at 100% 0%, rgba(130,160,255,.30), transparent 55%),
+      radial-gradient(90% 60% at 0% 100%, rgba(150,110,255,.16), transparent 60%),
+      linear-gradient(160deg, #202a4a, #121626) padding-box,
+      conic-gradient(from var(--a), #e4ebff, #8fa8ff, #3a4f9a, #cdd9ff, #6b7fd0, #e4ebff) border-box;
+    box-shadow: 0 8px 26px rgba(110,140,255,.2), 0 0 0 1px rgba(150,175,255,.12) inset;
+  }
+  .c.t-plus::after, .c.t-premium::after {
+    position: absolute; left: -8px; bottom: -18px; font-size: 92px; line-height: 1; pointer-events: none;
+    transform: rotate(-12deg);
+  }
+  .c.t-plus::after { content: "♛"; color: rgba(255,214,120,.14); }
+  .c.t-premium::after { content: "✦"; color: rgba(160,185,255,.16); }
+  .c.t-plus .flag, .c.t-premium .flag { width: 54px; height: 54px; animation: floaty 3.5s ease-in-out infinite; }
+  .c.t-plus .flag { box-shadow: 0 0 0 3px rgba(255,214,120,.35), 0 0 20px rgba(255,205,90,.6); }
+  .c.t-premium .flag { box-shadow: 0 0 0 3px rgba(150,175,255,.3), 0 0 20px rgba(130,160,255,.55); }
+  .c.t-plus .name, .c.t-premium .name { font-size: 16px; font-weight: 700; position: relative; }
+  .c.t-plus .name { background: linear-gradient(90deg, #fff3c4, #ffcf5a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .c.t-premium .name { background: linear-gradient(90deg, #f0f4ff, #a9bcff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .tier { box-shadow: 0 2px 10px rgba(0,0,0,.35); }
+  .tier.plus { box-shadow: 0 2px 12px rgba(255,190,70,.45); }
+  .tier.premium { box-shadow: 0 2px 12px rgba(130,160,255,.4); }
+  .c.t-plus .mine, .c.t-premium .mine { position: relative; }
+  .sec.s-plus, .sec.s-premium { font-size: 14px; letter-spacing: .2px; }
+  .sec.s-plus::after { background: linear-gradient(90deg, rgba(255,214,120,.7), transparent); }
+  .sec.s-premium::after { background: linear-gradient(90deg, rgba(150,175,255,.7), transparent); }
+  @media (prefers-reduced-motion: reduce) { .c.t-plus, .c.t-premium, .c.t-plus .flag, .c.t-premium .flag, .c.t-plus::before, .c.t-premium::before { animation: none; } }
+
+
+/* ================= صفحه‌ی خانه: طرح نیمه‌شب (سرمه‌ای / فیروزه‌ای) ================= */
+:root {
+  --nv0: #0c0f13; --nv1: #171c23; --nv2: #1f2630;
+  --teal-line: rgba(150,165,185, .38); --nvtxt: #a9b4c2;
+  --war-art: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20220%20120%27%20preserveAspectRatio%3D%27xMidYMid%20slice%27%3E%0A%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%231f5090%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23071429%27%2F%3E%3C%2FlinearGradient%3E%3Cfilter%20id%3D%27b%27%3E%3CfeGaussianBlur%20stdDeviation%3D%275%27%2F%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%0A%3Crect%20width%3D%27220%27%20height%3D%27120%27%20fill%3D%27url%28%23s%29%27%2F%3E%0A%3Cg%20filter%3D%27url%28%23b%29%27%20fill%3D%27%23a9ccff%27%20opacity%3D%27.35%27%3E%3Cellipse%20cx%3D%2750%27%20cy%3D%2730%27%20rx%3D%2746%27%20ry%3D%2710%27%2F%3E%3Cellipse%20cx%3D%27150%27%20cy%3D%2718%27%20rx%3D%2754%27%20ry%3D%279%27%2F%3E%3Cellipse%20cx%3D%27105%27%20cy%3D%2762%27%20rx%3D%2772%27%20ry%3D%278%27%2F%3E%3C%2Fg%3E%0A%3Cg%20fill%3D%27%23091a35%27%20stroke%3D%27%2378a8ee%27%20stroke-opacity%3D%27.6%27%20stroke-width%3D%27.7%27%3E%0A%3Cpath%20d%3D%27M30%2030%20L74%2033%20L108%2022%20L82%2038%20L96%2050%20L76%2043%20L48%2048%20L56%2037%20Z%27%2F%3E%0A%3Cpath%20d%3D%27M112%2012%20L142%2015%20L168%207%20L148%2021%20L158%2031%20L144%2026%20L126%2030%20L130%2021%20Z%27%2F%3E%0A%3C%2Fg%3E%0A%3Cg%20fill%3D%27%23050f1f%27%20stroke%3D%27%235b8fdc%27%20stroke-opacity%3D%27.55%27%20stroke-width%3D%27.7%27%3E%0A%3Cpath%20d%3D%27M4%20106%20H96%20L88%20116%20H12%20Z%27%2F%3E%3Crect%20x%3D%2724%27%20y%3D%2793%27%20width%3D%2746%27%20height%3D%2713%27%20rx%3D%275%27%2F%3E%3Crect%20x%3D%2764%27%20y%3D%2796%27%20width%3D%2750%27%20height%3D%274%27%20rx%3D%272%27%2F%3E%0A%3C%2Fg%3E%0A%3Crect%20y%3D%27114%27%20width%3D%27220%27%20height%3D%276%27%20fill%3D%27%23030a14%27%2F%3E%0A%3C%2Fsvg%3E");
+  --dev-art: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20220%20120%27%20preserveAspectRatio%3D%27xMidYMid%20slice%27%3E%0A%3Cdefs%3E%3ClinearGradient%20id%3D%27d%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23f0b04a%27%2F%3E%3Cstop%20offset%3D%27.6%27%20stop-color%3D%27%23a4601e%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%232b1608%27%2F%3E%3C%2FlinearGradient%3E%0A%3CradialGradient%20id%3D%27g%27%20cx%3D%27.28%27%20cy%3D%27.22%27%20r%3D%27.6%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff1c0%27%20stop-opacity%3D%27.95%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23fff1c0%27%20stop-opacity%3D%270%27%2F%3E%3C%2FradialGradient%3E%3C%2Fdefs%3E%0A%3Crect%20width%3D%27220%27%20height%3D%27120%27%20fill%3D%27url%28%23d%29%27%2F%3E%3Crect%20width%3D%27220%27%20height%3D%27120%27%20fill%3D%27url%28%23g%29%27%2F%3E%0A%3Cg%20fill%3D%27%235a3414%27%20opacity%3D%27.8%27%3E%3Crect%20x%3D%2710%27%20y%3D%2758%27%20width%3D%2722%27%20height%3D%2762%27%2F%3E%3Crect%20x%3D%2736%27%20y%3D%2744%27%20width%3D%2726%27%20height%3D%2776%27%2F%3E%3Crect%20x%3D%2766%27%20y%3D%2764%27%20width%3D%2720%27%20height%3D%2756%27%2F%3E%3Crect%20x%3D%2792%27%20y%3D%2750%27%20width%3D%2724%27%20height%3D%2770%27%2F%3E%3Crect%20x%3D%27120%27%20y%3D%2768%27%20width%3D%2722%27%20height%3D%2752%27%2F%3E%3C%2Fg%3E%0A%3Cg%20fill%3D%27%2326140a%27%3E%3Crect%20x%3D%274%27%20y%3D%2780%27%20width%3D%2728%27%20height%3D%2740%27%2F%3E%3Crect%20x%3D%2738%27%20y%3D%2766%27%20width%3D%2730%27%20height%3D%2754%27%2F%3E%3Crect%20x%3D%2774%27%20y%3D%2784%27%20width%3D%2726%27%20height%3D%2736%27%2F%3E%3Crect%20x%3D%27104%27%20y%3D%2772%27%20width%3D%2728%27%20height%3D%2748%27%2F%3E%3Crect%20x%3D%27136%27%20y%3D%2788%27%20width%3D%2730%27%20height%3D%2732%27%2F%3E%3Crect%20x%3D%27170%27%20y%3D%2776%27%20width%3D%2740%27%20height%3D%2744%27%2F%3E%3C%2Fg%3E%0A%3Cg%20fill%3D%27%23ffd37a%27%20opacity%3D%27.85%27%3E%3Crect%20x%3D%2744%27%20y%3D%2772%27%20width%3D%273%27%20height%3D%274%27%2F%3E%3Crect%20x%3D%2752%27%20y%3D%2772%27%20width%3D%273%27%20height%3D%274%27%2F%3E%3Crect%20x%3D%2744%27%20y%3D%2782%27%20width%3D%273%27%20height%3D%274%27%2F%3E%3Crect%20x%3D%2756%27%20y%3D%2792%27%20width%3D%273%27%20height%3D%274%27%2F%3E%3Crect%20x%3D%27110%27%20y%3D%2780%27%20width%3D%273%27%20height%3D%274%27%2F%3E%3Crect%20x%3D%27118%27%20y%3D%2790%27%20width%3D%273%27%20height%3D%274%27%2F%3E%3Crect%20x%3D%27178%27%20y%3D%2786%27%20width%3D%273%27%20height%3D%274%27%2F%3E%3Crect%20x%3D%27190%27%20y%3D%2796%27%20width%3D%273%27%20height%3D%274%27%2F%3E%3Crect%20x%3D%2780%27%20y%3D%2794%27%20width%3D%273%27%20height%3D%274%27%2F%3E%3C%2Fg%3E%0A%3Cg%20stroke%3D%27%231d0f06%27%20stroke-width%3D%272%27%20fill%3D%27none%27%3E%3Cpath%20d%3D%27M182%2076%20V14%20M182%2014%20H134%20M182%2014%20L204%2014%20M182%2020%20L150%2014%20M134%2014%20V30%27%2F%3E%3Cpath%20d%3D%27M150%2014%20L150%2020%20M166%2014%20L166%2018%27%20stroke-width%3D%271%27%2F%3E%3C%2Fg%3E%0A%3C%2Fsvg%3E");
+}
+body:has(#homeview:not([hidden])) { background: radial-gradient(130% 55% at 50% 0%, #2b3440 0%, #171c23 48%, #0c0f13 100%) fixed; }
+.homeview { padding-top: 10px; }
+.homeview .hbar { padding: 0 2px 12px; margin-bottom: 12px; border-bottom: 1px solid rgba(143,168,74, .2); }
+.homeview .hgrp { display: contents; }
+.homeview .ibtn {
+  width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 20px;
+  background: radial-gradient(circle at 50% 30%, rgba(90,104,122, .6), rgba(14,18,24, .95));
+  border: 1.5px solid rgba(143,168,74, .5); box-shadow: inset 0 0 10px rgba(0, 0, 0, .5), 0 0 10px rgba(143,168,74, .12);
+}
+.homeview .ibtn.crown { border-color: rgba(255, 214, 120, .95); box-shadow: 0 0 16px rgba(255, 200, 90, .45), inset 0 0 10px rgba(255, 190, 70, .25); cursor: default; }
+.homeview .avatar .flag.lg { width: 62px; height: 62px; border: 3px solid #8fa84a; box-shadow: 0 0 14px rgba(255, 200, 90, .5); }
+.homeview .lvl { background: linear-gradient(#e6ad4f, #a8691f); color: #2a1700; border: 1px solid #ffe3a0; }
+.homeview .hero {
+  border: 1.5px solid var(--teal-line); border-radius: 26px;
+  box-shadow: 0 0 26px rgba(47, 208, 204, .16), inset 0 0 40px rgba(47, 208, 204, .06);
+  background: radial-gradient(90% 60% at 20% 30%, rgba(30, 150, 160, .35), transparent 70%), linear-gradient(165deg, #12606b 0%, #0a3a52 40%, #07233a 100%);
+}
+.homeview .htitle { font-size: 16px; }
+.homeview .pill { background: rgba(4, 22, 40, .6); border-color: rgba(90, 210, 222, .35); }
+.homeview .panel { background: linear-gradient(180deg, rgba(4, 22, 40, .74), rgba(4, 22, 40, .62)); border: 1px solid rgba(90, 210, 222, .3); border-radius: 22px; }
+.homeview .panel hr { border-top-color: rgba(90, 210, 222, .2); }
+.homeview .lbl { color: #cfe0f5; font-size: 14px; }
+.cashrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cashtxt { flex: 1; min-width: 0; }
+.homeview .cash { font-size: 40px; letter-spacing: -.5px; text-shadow: 0 2px 12px rgba(0, 0, 0, .45); }
+.homeview .inc { color: #7fa6cf; font-size: 14px; }
+.bigflag { position: relative; width: 112px; height: 100px; flex: none; }
+.bigflag .pole { position: absolute; left: 4px; top: 2px; bottom: 0; width: 4px; border-radius: 3px; background: linear-gradient(90deg, #f6d98a, #a7782a); box-shadow: 0 0 6px rgba(0, 0, 0, .5); }
+.bigflag .pole::before { content: ""; position: absolute; top: -5px; left: -2px; width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff0b0, #c2902f); }
+.bigflag .flag.cloth {
+  position: absolute; left: 8px; top: 6px; width: 100px; height: 66px; border-radius: 3px 8px 8px 3px; border: 0; background: #fff; font-size: 46px;
+  box-shadow: 0 8px 14px rgba(0, 0, 0, .45); transform: perspective(260px) rotateY(-18deg) skewY(-3deg); transform-origin: left center;
+}
+.bigflag .flag.cloth::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(100deg, rgba(0, 0, 0, .22), rgba(255, 255, 255, .28) 35%, rgba(0, 0, 0, .2) 65%, rgba(255, 255, 255, .18)); }
+.homeview .stat .val { font-size: 34px; }
+.homeview .stat .val.green { color: #38d79f; }
+.homeview .stat .sub { color: #7fa6cf; }
+.homeview .stat.mid { border-right: 1px solid rgba(90, 210, 222, .22); padding-right: 10px; }
+.homeview .safe { width: 92px; flex: none; display: flex; justify-content: center; opacity: 1; }
+.homeview .safe svg { filter: drop-shadow(0 6px 8px rgba(0, 0, 0, .45)); }
+.homeview .rowx b { font-size: 16px; }
+.homeview .rowx .muted, .homeview .season .muted { color: #a9b4c2; }
+.season { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.season .stxt { min-width: 0; }
+.season .stxt b { font-size: 18px; display: flex; align-items: center; gap: 8px; }
+.season .stxt .muted { margin-top: 6px; font-size: 14px; }
+.fxbtn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: none; max-width: 54%; padding: 10px 14px; border-radius: 999px;
+  font: inherit; font-size: 13px; color: #bcd3ee; cursor: pointer; background: rgba(4, 22, 40, .55); border: 1px solid rgba(90, 210, 222, .38);
+}
+.fxbtn .chev { font-size: 20px; line-height: 1; color: #7fa6cf; }
+.homeview .job { background: linear-gradient(160deg, rgba(14, 50, 78, .85), rgba(7, 26, 46, .9)); border-color: rgba(90, 210, 222, .25); }
+.homeview .tiles.big { gap: 12px; margin-top: 14px; }
+.homeview .tiles.big .tile { min-height: 112px; padding: 14px 14px 12px; border-radius: 20px; justify-content: space-between; }
+.tile .trow { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tile .trow h3 { font-size: 24px; font-weight: 800; text-shadow: 0 2px 10px rgba(0, 0, 0, .6); }
+.tile .go { width: 36px; height: 36px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; line-height: 1; padding-bottom: 3px;
+  border: 1.5px solid currentColor; background: rgba(0, 0, 0, .28); }
+.homeview .tiles.big .tile p { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; color: #d8e3f3; }
+.homeview .tile.t-war { color: #fff; border: 1.5px solid rgba(70, 140, 255, .65); box-shadow: 0 0 18px rgba(60, 120, 255, .22);
+  background: linear-gradient(270deg, rgba(4, 14, 34, .82) 0%, rgba(4, 14, 34, .2) 75%), var(--war-art) center / cover no-repeat, #0a1d3a; }
+.homeview .tile.t-war .go { color: #5aa2ff; }
+.homeview .tile.t-dev { color: #fff; border: 1.5px solid rgba(232, 176, 70, .7); box-shadow: 0 0 18px rgba(232, 176, 70, .22);
+  background: linear-gradient(270deg, rgba(40, 20, 4, .82) 0%, rgba(40, 20, 4, .2) 75%), var(--dev-art) center / cover no-repeat, #4a2a0c; }
+.homeview .tile.t-dev .go { color: #f2b84b; }
+.homeview .tile.t-dev .badge { top: 8px; font-size: 12px; padding: 2px 10px; }
+.homeview .tiles.more { gap: 10px; margin-top: 12px; }
+.homeview .tile.row {
+  min-height: 80px; flex-direction: row; align-items: center; justify-content: flex-start; gap: 12px; padding: 10px 12px; border-radius: 18px; color: var(--text);
+  background: linear-gradient(160deg, rgba(14, 50, 78, .85), rgba(7, 26, 46, .92)); border: 1px solid rgba(90, 210, 222, .25);
+}
+.homeview .tile.row .mi { width: 44px; height: 44px; border-radius: 14px; font-size: 20px; flex: none; }
+.homeview .tile.row h4 { font-size: 14px; margin: 0; }
+.homeview .tile.row p { font-size: 12px; line-height: 1.6; max-width: 100%; color: #a9b4c2; }
+.homeview .tile.row .badge { top: 10px; left: 12px; right: auto; width: 11px; height: 11px; padding: 0; font-size: 0; border: 0; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+.mi.blue { background: linear-gradient(160deg, #4a73b9, #223d6e); }
+.mi.purple { background: linear-gradient(160deg, #7a5bd0, #3b2a7a); }
+.mi.green { background: linear-gradient(160deg, #3fae7d, #1d6048); }
+.homeview .terr { background: linear-gradient(160deg, rgba(14, 40, 60, .9), rgba(7, 22, 38, .95)); border-color: rgba(143,168,74, .55); }
+/* نوار پایین (همه‌ی صفحه‌ها) */
+.nav { background: linear-gradient(180deg, rgba(8, 32, 56, .97), rgba(4, 16, 32, .98)); border: 1px solid var(--teal-line); border-radius: 30px;
+  box-shadow: 0 0 22px rgba(47, 208, 204, .14), 0 10px 24px rgba(0, 0, 0, .5); }
+.ni { color: var(--nvtxt); }
+.ni.on { color: var(--gold); }
+.ni .ic { position: relative; }
+.ni.home { position: relative; }
+.ni.home .ic { background: radial-gradient(circle at 50% 30%, #123b5e, #06182c); border: 3px solid #8fa84a; box-shadow: 0 0 0 4px #06182c, 0 0 18px rgba(143,168,74, .45); }
+.ni.home::before, .ni.home::after { content: ""; position: absolute; top: 24px; width: 18px; height: 2px; }
+.ni.home::before { left: -14px; background: linear-gradient(270deg, rgba(143,168,74, .85), transparent); }
+.ni.home::after { right: -14px; background: linear-gradient(90deg, rgba(143,168,74, .85), transparent); }
+.nb { position: absolute; top: -6px; right: -10px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: #e5484d; color: #fff;
+  font-size: 12px; font-weight: 700; font-style: normal; display: flex; align-items: center; justify-content: center; border: 2px solid #06182c; }
+
+/* ---- ریزه‌کاری‌های صفحه‌ی خانه ---- */
+.tile .go, .fxbtn .chev { direction: ltr; unicode-bidi: isolate; }
+.bigflag { width: 88px; height: 84px; }
+.bigflag .flag.cloth { width: 76px; height: 52px; font-size: 38px; }
+.homeview .cash { font-size: clamp(28px, 8.6vw, 36px); white-space: nowrap; }
+.homeview .stat .lbl { font-size: 13px; white-space: nowrap; }
+.homeview .stat.mid { padding-right: 6px; }
+.homeview .safe { width: 80px; }
+.homeview .safe svg { width: 76px; height: 68px; }
+.season .stxt .muted { font-size: 13px; }
+.fxbtn { max-width: 46%; font-size: 13px; padding: 9px 12px; gap: 6px; }
+.homeview .cash { font-size: clamp(26px, 7.6vw, 32px); }
+.season { display: grid; grid-template-columns: 1fr auto; align-items: center; row-gap: 8px; }
+.season .stxt { display: contents; }
+.season .stxt b { grid-column: 1; grid-row: 1; }
+.season .fxbtn { grid-column: 2; grid-row: 1; max-width: none; }
+.season .stxt .muted { grid-column: 1 / -1; grid-row: 2; margin-top: 0; }
+
+/* حلقه‌ی دور پرچم من بر اساس سطح کشور: عادی / پرمیوم / پرمیوم پلاس */
+body[data-tier="normal"] .avatar .flag.lg { border: 3px solid #c8793a; box-shadow: 0 2px 8px rgba(0, 0, 0, .5); }
+body[data-tier="premium"] .avatar .flag.lg { border: 3px solid #9db4ff; box-shadow: 0 0 14px rgba(130, 160, 255, .65), 0 0 0 2px rgba(130, 160, 255, .25); }
+body[data-tier="plus"] .avatar .flag.lg { border: 3px solid #ffd678; box-shadow: 0 0 16px rgba(255, 205, 90, .75), 0 0 0 2px rgba(255, 205, 90, .3); }
+body[data-tier="normal"] .avatar .lvl { background: linear-gradient(#d98c4a, #8f5320); color: #fff3e0; border: 1px solid #f0b685; }
+body[data-tier="premium"] .avatar .lvl { background: linear-gradient(#cdd9ff, #8fa8ff); color: #0f1838; border: 1px solid #e4ebff; }
+body[data-tier="plus"] .avatar .lvl { background: linear-gradient(#ffe08a, #f2b84b); color: #2a1d00; border: 1px solid #ffe6cc; }
+
+  /* پرونده‌ی فرمانده */
+  .pfbox { padding: 12px 4px 18px; }
+  .pfbox .pfname { font-size: 22px; font-weight: 700; }
+  .pfbox .pfsub { color: var(--hint); font-size: 14px; margin-top: 4px; }
+  .pfbox h5 { margin: 18px 0 8px; font-size: 16px; color: var(--gold); }
+  .pfbox .pfgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .pfbox .pfst { border: 1px solid var(--line); border-radius: 14px; padding: 10px 6px; text-align: center; background: rgba(255,255,255,.03); }
+  .pfbox .pfst b { display: block; font-size: 20px; }
+  .pfbox .pfst span { color: var(--hint); font-size: 13px; }
+  .pfbox .pfmedals { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .pfbox .pfmedal { border: 1px solid var(--line); border-radius: 14px; padding: 10px 8px; text-align: center; background: rgba(255,255,255,.03); opacity: .5; filter: grayscale(.85); }
+  .pfbox .pfmedal.got { opacity: 1; filter: none; border-color: rgba(143,168,74,.55); background: rgba(143,168,74,.08); }
+  .pfbox .pfmedal.new { box-shadow: 0 0 0 2px var(--gold); }
+  .pfbox .pfmedal .mdi { font-size: 34px; line-height: 1.2; }
+  .pfbox .pfmedal b { display: block; font-size: 14px; margin-top: 2px; }
+  .pfbox .pfmedal span { display: block; color: var(--hint); font-size: 13px; margin-top: 3px; }
+  .pfbox .pfmedal em { display: block; font-style: normal; font-size: 13px; margin-top: 6px; color: var(--gold); }
+  .pfbox .pfrow { display: flex; justify-content: space-between; padding: 8px 2px; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .pfbox .pfrow:last-child { border-bottom: 0; }
+  /* بایگانی فصل‌ها */
+  .pfbox .arrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 12px; margin-bottom: 8px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.03); cursor: pointer; }
+  .pfbox .arrow.cur { border-color: rgba(143,168,74,.55); }
+  .pfbox .arrow b { font-size: 16px; display: block; }
+  .pfbox .arrow span { color: var(--hint); font-size: 14px; }
+  .pfbox .arrow.top b { font-size: 14px; }
+  .pfbox .arrow i { color: var(--hint); font-style: normal; font-size: 20px; }
+
+  /* نقشه‌ی تمام‌صفحه: کره پشت کل صفحه است و نوار بالا، دکمه‌ها و نوار پایین روی آن می‌نشینند */
+  body.mapfull { overflow: hidden; }
+  .mapview.full { position: fixed; inset: 0; z-index: 1; padding: 0; background: #05080d; }
+  .mapview.full .globewrap {
+    position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto;
+    border: 0; border-radius: 0;
+    background: radial-gradient(circle at 50% 50%, #0d1a2b 0%, #05080d 75%);
+  }
+  .mapview.full .chip { top: calc(112px + env(safe-area-inset-top)); }
+  .mapview.full .zoom { left: 12px; top: auto; bottom: calc(190px + env(safe-area-inset-bottom)); transform: none; }
+  .mapview.full .gmsg { bottom: calc(176px + env(safe-area-inset-bottom)); padding: 0 56px; }
+  .mapview.full .mycard {
+    position: absolute; left: 12px; right: 12px; bottom: calc(92px + env(safe-area-inset-bottom));
+    margin: 0; z-index: 3; background: linear-gradient(160deg, rgba(42,36,21,.92), rgba(24,27,34,.92));
+  }
+  body.mapfull .top {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 4; pointer-events: none;
+    padding: calc(10px + env(safe-area-inset-top)) 14px 28px;
+    background: linear-gradient(180deg, rgba(5,8,13,.9) 0%, rgba(5,8,13,0) 100%);
+  }
+
+  /* نیروی شهرها */
+  .wcity { padding: 10px 12px; margin: 8px 0; border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.04); direction: rtl; }
+  .wcity.dim { opacity: .55; }
+  .wcity .wch { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .wcity .wcp { font-size: 14px; color: var(--gold); white-space: nowrap; }
+  .wcity .wcb { height: 6px; border-radius: 6px; background: rgba(255,255,255,.08); margin: 8px 0 6px; overflow: hidden; }
+  .wcity .wcb i { display: block; height: 100%; background: var(--gold); border-radius: 6px; }
+  .wcity small { display: block; opacity: .8; line-height: 1.7; }
+  .wsub { margin: 18px 0 4px; font-size: 14px; }
+  .wtabs .wtab { font-size: 14px; text-align: center; line-height: 1.3; }
+
+/* پرچم بزرگِ خانه: کامل و بدون بریده شدن (نسبت اصلی)، بدون حاشیه‌ی سفید */
+.bigflag .flag.cloth.fit { background: transparent; border-radius: 2px 6px 6px 2px; overflow: hidden; }
+.bigflag .flag.cloth.fit img { object-fit: fill; width: 100%; height: 100%; }
+.bigflag .flag.cloth.fit::after { background: linear-gradient(100deg, rgba(0, 0, 0, .14), rgba(255, 255, 255, .12) 35%, rgba(0, 0, 0, .1) 65%, rgba(255, 255, 255, .08)); }
+
+/* رضایت مردم در صفحه‌ی خانه */
+.sat { padding: 2px 0; }
+.sat-top { display: flex; align-items: center; justify-content: space-between; font-size: 14px; margin-bottom: 6px; }
+.sat-top b { font-size: 18px; }
+.sat-bar { height: 9px; border-radius: 9px; background: rgba(255,255,255,.14); overflow: hidden; }
+.sat-bar i { display: block; height: 100%; width: 0; border-radius: 9px; background: #3fd0a5; transition: width .4s; }
+.sat-bar i.mid { background: #f0b84a; }
+.sat-bar i.low { background: #ff7a7a; }
+.sat .sub { font-size: 13px; color: var(--hint); margin-top: 6px; }
+
+
+/* برگه‌ی تأیید ساخت / ارتقا (کارت شناور مثل بازی)
+   همه‌ی اندازه‌ها از روی اسکرین‌شات مرجع (عرض ۱۰۸۰) و با واحد --u حساب شده‌اند، پس در هر گوشی همان نسبت‌ها را دارد.
+   عرض کارت = ۹۹۰u، دکمه‌ی سبز = ۹۱۰u × ۱۱۴u. (۱u = ۱/۱۰۸۰ عرض صفحه؛ در صفحه‌ی خیلی پهن عرض از ۵۲۰px بیشتر نمی‌شود) */
+.cfsheet { --u: calc(min(100vw, 520px) / 1080);
+  left: 0; right: 0; margin: 0 auto; width: calc(990 * var(--u)); bottom: calc(238 * var(--u) + env(safe-area-inset-bottom));
+  max-height: calc(100vh - 150px); padding: 0; border-radius: calc(48 * var(--u));
+  background: #161b28; border: 1px solid #2a3140; box-shadow: 0 10px 40px rgba(0,0,0,.55); display: flex; flex-direction: column; overflow: hidden; }
+.cfhead { display: flex; align-items: center; justify-content: space-between; height: calc(160 * var(--u)); padding: 0 calc(40 * var(--u)) 0 calc(40 * var(--u));
+  border-bottom: calc(2 * var(--u)) solid #2a3140; font-size: calc(44 * var(--u)); font-weight: 700; flex: none; }
+.cfx { width: calc(92 * var(--u)); height: calc(92 * var(--u)); border-radius: 50%; border: calc(3 * var(--u)) solid #3a4150; background: transparent; color: #cfd3dc;
+  font-size: calc(34 * var(--u)); line-height: 1; padding: 0; cursor: pointer; flex: none; }
+.cfbody { padding: 0 calc(40 * var(--u)); overflow-y: auto; flex: 1; }
+.cflvl { display: flex; align-items: center; justify-content: space-between; gap: calc(16 * var(--u)); flex-wrap: nowrap; padding: calc(36 * var(--u)) 0 calc(26 * var(--u)); }
+.cfpill { height: calc(61 * var(--u)); line-height: calc(57 * var(--u)); padding: 0 calc(28 * var(--u)); border-radius: 999px; border: calc(2 * var(--u)) solid #3a4150;
+  background: rgba(255,255,255,.03); font-size: calc(33 * var(--u)); direction: rtl; white-space: nowrap; }
+.cfside { display: flex; align-items: center; gap: calc(22 * var(--u)); color: #aeb4c0; font-size: calc(33 * var(--u)); white-space: nowrap; min-width: 0; }
+.cfpips { display: flex; gap: calc(9 * var(--u)); direction: rtl; }
+.cfpips i { width: calc(38 * var(--u)); height: calc(14 * var(--u)); border-radius: calc(7 * var(--u)); background: #3a4150; }
+.cfpips i.on { background: linear-gradient(90deg, #f6d886, #e2b95a); }
+.cfpips i.nx { background: #2f7f72; }
+.cfnote { margin: 0 0 calc(14 * var(--u)); padding: calc(14 * var(--u)) calc(20 * var(--u)); border-radius: calc(22 * var(--u)); font-size: calc(30 * var(--u)); color: var(--gold); background: rgba(143,168,74,.08); }
+.cfsec { padding: calc(14 * var(--u)) 0 calc(28 * var(--u)); font-size: calc(31 * var(--u)); color: #aeb4c0; border-bottom: calc(2 * var(--u)) solid #2a3140; }
+.cfrow { padding: calc(30 * var(--u)) 0 calc(26 * var(--u)); border-bottom: calc(2 * var(--u)) solid #2a3140; }
+.cfrow.in { display: flex; align-items: center; justify-content: space-between; flex-direction: row; height: calc(96 * var(--u)); padding: 0; }
+.cft { font-size: calc(38 * var(--u)); line-height: calc(54 * var(--u)); display: flex; align-items: center; gap: calc(18 * var(--u)); }
+.cfic { font-size: calc(34 * var(--u)); line-height: 1; }
+.cfdesc { margin: calc(4 * var(--u)) 0 calc(8 * var(--u)); font-size: calc(33 * var(--u)); line-height: calc(60 * var(--u)); color: #8f97a6; }
+.cfv { display: flex; align-items: center; gap: calc(20 * var(--u)); font-size: calc(38 * var(--u)); direction: ltr; justify-content: flex-end; flex-wrap: nowrap; margin-top: calc(6 * var(--u)); min-height: calc(60 * var(--u)); }
+.cfrow.in .cfv { margin-top: 0; min-height: 0; justify-content: flex-start; }
+.cfv b { font-weight: 700; }
+.cfv .cff, .cfv .cfar { color: #8d94a3; }
+.cfd { direction: ltr; unicode-bidi: isolate; display: inline-block; height: calc(60 * var(--u)); line-height: calc(56 * var(--u)); padding: 0 calc(22 * var(--u)); border-radius: 999px;
+  font-size: calc(32 * var(--u)); color: #4fd9a0; border: calc(2 * var(--u)) solid rgba(79,217,160,.55); background: rgba(79,217,160,.1); white-space: nowrap; }
+.cfd.bad { color: #ff8a8a; border-color: rgba(232,87,90,.6); background: rgba(232,87,90,.12); }
+.cfrow.in .cfd { height: calc(52 * var(--u)); line-height: calc(48 * var(--u)); font-size: calc(31 * var(--u)); padding: 0 calc(18 * var(--u)); }
+.cfcost { margin: calc(36 * var(--u)) 0 calc(40 * var(--u)); padding: 0 calc(35 * var(--u)) calc(22 * var(--u)); border-radius: calc(38 * var(--u)); border: calc(2 * var(--u)) solid #2a3140; background: #1c2231; }
+.cfct { text-align: right; color: #aeb4c0; font-size: calc(30 * var(--u)); height: calc(89 * var(--u)); line-height: calc(89 * var(--u)); border-bottom: calc(2 * var(--u)) solid #2a3140; }
+.cfcr { display: flex; justify-content: space-between; align-items: center; height: calc(100 * var(--u)); border-bottom: calc(2 * var(--u)) solid #2a3140; font-size: calc(38 * var(--u)); }
+.cfcr span { display: flex; align-items: center; gap: calc(16 * var(--u)); }
+.cfcr b { font-weight: 500; }
+.cfcr b.num { direction: ltr; }
+.cfbal { padding-top: calc(26 * var(--u)); font-size: calc(32 * var(--u)); line-height: calc(44 * var(--u)); color: #aeb4c0; text-align: right; direction: rtl; }
+.cffoot { flex: none; padding: calc(28 * var(--u)) calc(40 * var(--u)) calc(35 * var(--u)); border-top: calc(2 * var(--u)) solid #2a3140; background: #161b28; }
+.cfgo { display: block; width: 100%; height: calc(114 * var(--u)); padding: 0 calc(12 * var(--u)); border-radius: calc(30 * var(--u)); border: 0; cursor: pointer; font: inherit;
+  font-size: calc(40 * var(--u)); font-weight: 700; color: #06281c; background: linear-gradient(180deg, #62e6b5, #3fcb97);
+  box-shadow: inset 0 calc(-7 * var(--u)) 0 #2fa77c; }
+.cfgo:disabled { color: #8d94a3; background: rgba(255,255,255,.07); box-shadow: none; }
+
+/* شمارنده‌ی جمعیت صفحه‌ی خانه (زیر موجودی خزانه؛ عددش هر ۲ دقیقه یک‌بار تازه می‌شود) */
+.homeview .poplbl { margin-top: 12px; }
+.homeview .cash.pop { font-size: clamp(22px, 6.4vw, 28px); margin-top: 2px; }
+.homeview .inc.up { color: #6fd08c; }
+.homeview .inc.down { color: #ff8a8a; }
+
+/* لوگوهای دست‌ساز جای ایموجی (icons.js) */
+img.ic { width: 1.25em; height: 1.25em; vertical-align: -.28em; display: inline-block; pointer-events: none; -webkit-user-drag: none; }
+.ibtn img.ic, .ico img.ic { width: 1.1em; height: 1.1em; vertical-align: middle; }
+
+/* نماد ملی هر کشور (symbols.js) */
+#hsym img.sym { width: 34px; height: 34px; margin-inline-start: 8px; vertical-align: middle; filter: drop-shadow(0 1px 4px rgba(0,0,0,.5)); }
+#csym { display: flex; justify-content: center; margin: 6px 0 2px; }
+#csym img.sym.lg { width: 64px; height: 64px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.5)); }
+.homeview .hero-top .pill { white-space: nowrap; }
+.homeview .htitle { white-space: nowrap; font-size: 14px; gap: 8px; }
+#hsym img.sym { width: 30px; height: 30px; margin-inline-start: 2px; }
+
+
+/* ================= جدول جهانی: طرح نیمه‌شب با نشان و سکوی رنگی ================= */
+body:has(#rankview:not([hidden])) { background: radial-gradient(130% 55% at 50% 0%, #2b3440 0%, #171c23 48%, #0c0f13 100%) fixed; }
+.rankview .hbar { padding: 0 2px 12px; border-bottom: 1px solid rgba(143,168,74, .2); }
+.rankview .rach { border-color: rgba(143,168,74, .35); }
+.rankview .rach b { font-size: 16px; font-weight: 700; }
+
+/* سرِ کارت: لوگو + عنوان بزرگ */
+.rankview .rcard {
+  position: relative; overflow: hidden; padding: 20px 16px 16px; border-radius: 28px;
+  border: 1.5px solid var(--teal-line);
+  background: radial-gradient(90% 60% at 85% 0%, rgba(143,168,74, .22), transparent 70%), linear-gradient(165deg, #12606b 0%, #0a3a52 42%, #07233a 100%);
+  box-shadow: 0 0 26px rgba(47, 208, 204, .14), inset 0 0 40px rgba(47, 208, 204, .06);
+}
+.rankview .rcard .rt { align-items: flex-start; font-weight: 800; }
+.rtt { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.rlogo { width: 60px; height: 60px; flex: none; filter: drop-shadow(0 4px 12px rgba(143,168,74, .5)); }
+.rttx { display: flex; flex-direction: column; min-width: 0; }
+.rttx b { font-size: 24px; font-weight: 800; line-height: 1.25; letter-spacing: -.3px; }
+.rttx small { font-size: 13px; font-weight: 400; color: #a9c4d8; margin-top: 3px; line-height: 1.6; }
+
+/* رتبه‌ی من */
+.rankview .rme { margin: 18px 2px 10px; gap: 16px; }
+.rankview .rme .flag { width: 96px; height: 96px; font-size: 52px; border: 4px solid #ffd98a; box-shadow: 0 0 22px rgba(255, 200, 90, .45); }
+.rankview .rme .nm { font-size: 14px; color: #cfe0f5; font-weight: 600; }
+.rankview .rme .rk { font-size: 14px; color: #a9c4d8; display: flex; align-items: baseline; flex-wrap: wrap; }
+.rankview .rme .rk b { font-size: 76px; font-weight: 800; line-height: 1; margin: 0 8px; letter-spacing: -2px;
+  background: linear-gradient(180deg, #fff1c0 10%, #8fa84a 95%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.rankview .rme .rk small { font-size: 14px; color: #a9c4d8; }
+.rankview .tierchip { margin-top: 8px; font-size: 14px; padding: 5px 16px; }
+.rpct { margin: 4px 2px 14px; }
+.rpcttx { font-size: 14px; color: #cfe0f5; margin-bottom: 8px; min-height: 1.4em; }
+.rpcttx b { font-size: 16px; font-weight: 800; color: #ffd98a; margin: 0 3px; }
+.rpbar { height: 10px; border-radius: 999px; background: rgba(4, 22, 40, .7); border: 1px solid rgba(90, 210, 222, .3); overflow: hidden; }
+.rpbar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #8fa84a, #ffd98a); box-shadow: 0 0 10px rgba(255, 200, 90, .6); }
+
+/* آمار پنج دسته */
+.rankview .rst { gap: 6px; }
+.rankview .rst > div { padding: 12px 2px 10px; border-radius: 18px; background: rgba(4, 22, 40, .6); border-color: rgba(90, 210, 222, .28); }
+.rankview .rst > div.first { border-color: rgba(255, 214, 120, .9); background: linear-gradient(180deg, rgba(143,168,74, .25), rgba(4, 22, 40, .6)); box-shadow: 0 0 14px rgba(255, 200, 90, .3); }
+.rankview .rst .ic { height: 30px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.rankview .rst .ic img.cic { width: 28px; height: 28px; }
+.rankview .rst b { font-size: 28px; font-weight: 800; margin: 4px 0 2px; }
+.rankview .rst span { font-size: 13px; color: #a9c4d8; }
+.rankview .rfoot { border-top-color: rgba(90, 210, 222, .22); font-size: 13px; color: #a9c4d8; }
+.rankview .livepill { font-size: 13px; font-weight: 700; }
+.rankview .qbtn { border-color: rgba(169, 196, 216, .6); color: #cfe0f5; }
+.rankview .rend { border-radius: 22px; }
+.rankview .rend h4 { font-size: 16px; font-weight: 800; }
+.rankview .rend p { font-size: 14px; line-height: 2; }
+
+/* تب‌های دسته */
+.rankview .rtabs { gap: 8px; padding: 4px 2px 14px; }
+.rankview .rtab { min-width: 98px; padding: 10px 14px; font-size: 14px; border-radius: 18px; border-width: 1.5px; border-color: rgba(143,168,74, .4); background: rgba(143,168,74, .06); }
+.rankview .rtab img.ic { width: 1.2em; height: 1.2em; }
+.rankview .rtab.on { border-color: #ffd98a; font-weight: 800; box-shadow: 0 6px 16px rgba(143,168,74, .35); }
+.rankview .rtab.on { background: linear-gradient(160deg, #c5d68a, #d98428); }
+
+/* سکوی نفرات اول تا سوم */
+.rankview .podium { gap: 8px; margin: 30px 0 18px; }
+.rankview .pcol .flag { width: 84px; height: 84px; font-size: 44px; border: 4px solid #d9915a; box-shadow: 0 0 16px rgba(217, 145, 90, .45); }
+.rankview .pcol.p1 .flag { width: 116px; height: 116px; font-size: 62px; border-color: #ffd98a; box-shadow: 0 0 30px rgba(255, 200, 90, .65); }
+.rankview .pcol.p2 .flag { border-color: #d6dbe6; box-shadow: 0 0 16px rgba(214, 219, 230, .45); }
+.rankview .pcol .crown { font-size: 34px; margin-bottom: 2px; }
+.rankview .pcol .crown img.ic { width: 1.1em; height: 1.1em; filter: drop-shadow(0 0 8px rgba(255, 200, 90, .8)); }
+.rankview .pcol .pn { font-size: 14px; font-weight: 800; margin: 10px 0 6px; }
+.rankview .pcol.p1 .pn { font-size: 18px; color: #ffe3a0; }
+.rankview .pcol .prz { font-size: 13px; font-weight: 700; background: rgba(4, 22, 40, .6); border-color: rgba(90, 210, 222, .3); }
+.rankview .pcol.p1 .prz { border-color: rgba(255, 214, 120, .8); color: #ffe3a0; }
+.rankview .pcol .step { font-size: 54px; font-weight: 800; line-height: 1.1; border-radius: 22px 22px 0 0; border: 1px solid rgba(255, 255, 255, .08); border-bottom: 0; color: #d6dbe6;
+  background: linear-gradient(180deg, #3a414c, #1b1e24); }
+.rankview .pcol.p1 .step { color: #ffd98a; border-color: rgba(255, 214, 120, .45); background: linear-gradient(180deg, #4a6a7a, #1b2a33); box-shadow: 0 -8px 26px rgba(255, 200, 90, .2); }
+.rankview .pcol.p3 .step { color: #e9b88c; background: linear-gradient(180deg, #5a3d28, #231a14); }
+.rankview .pcol.me .pn::after { content: " (تو)"; color: #5ee6dd; font-weight: 700; font-size: .8em; }
+.rankview .pcol.me .flag { outline: 3px solid #2fd0cc; outline-offset: 3px; }
+
+/* جوایز */
+.rankview .prizes { border-radius: 26px; border: 1.5px solid rgba(143,168,74, .55); background: linear-gradient(160deg, #161b11, #151921 60%); }
+.rankview .prizes h4 { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+.rankview .prow { font-size: 14px; }
+.rankview .medal { font-size: 18px; font-weight: 800; }
+
+/* فهرست از رتبه‌ی ۴ به بعد */
+.rankview .rrow { gap: 12px; padding: 13px 14px; border-radius: 22px; }
+.rankview .rrow .num { font-size: 18px; font-weight: 800; color: #cfe0f5; border-color: rgba(90, 210, 222, .35); background: rgba(4, 22, 40, .5); }
+.rankview .rrow .info b { font-size: 16px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.rankview .rrow.me { border-color: #2fd0cc; background: linear-gradient(160deg, rgba(47, 208, 204, .18), var(--card)); box-shadow: 0 0 18px rgba(47, 208, 204, .22); }
+.rankview .rrow.me .num { color: #2a1d00; background: linear-gradient(160deg, #ffd98a, #8fa84a); border-color: #ffe3a0; }
+.youtag { font-style: normal; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; color: #06312f; background: #5ee6dd; }
+.rmini { height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .07); margin-bottom: 8px; overflow: hidden; }
+.rmini i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, rgba(143,168,74, .5), #8fa84a); }
+.rankview .chips { gap: 6px; }
+.rankview .chips span { font-size: 13px; font-weight: 600; padding: 4px 10px 4px 8px; display: inline-flex; align-items: center; gap: 2px; }
+.rankview .chips span img.cic { width: 16px; height: 16px; }
+
+/* یک حرکت هماهنگ: بالا آمدن سکو هنگام باز شدن صفحه */
+@keyframes rpRise { from { transform: translateY(26px); opacity: 0; } to { transform: none; opacity: 1; } }
+.rankview:not([hidden]) .pcol.p1 { animation: rpRise .6s cubic-bezier(.2, .8, .2, 1) .1s both; }
+.rankview:not([hidden]) .pcol.p2 { animation: rpRise .6s cubic-bezier(.2, .8, .2, 1) .25s both; }
+.rankview:not([hidden]) .pcol.p3 { animation: rpRise .6s cubic-bezier(.2, .8, .2, 1) .4s both; }
+@media (prefers-reduced-motion: reduce) { .rankview .pcol { animation: none !important; } }
+@media (max-width: 360px) {
+  .rttx b { font-size: 20px; } .rankview .rme .rk b { font-size: 62px; } .rankview .rst b { font-size: 22px; }
+  .rankview .pcol .flag { width: 70px; height: 70px; font-size: 36px; } .rankview .pcol.p1 .flag { width: 96px; height: 96px; font-size: 52px; }
+}
+
+
+/* نماد کاشی‌های بزرگ خانه (جنگ و توسعه) */
+.tile .tgrp { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tile .tic { width: 48px; height: 48px; flex: none; border-radius: 14px; filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .55)); pointer-events: none; -webkit-user-drag: none; }
+.homeview .tile.t-war .tic { box-shadow: 0 0 14px rgba(70, 140, 255, .45); }
+.homeview .tile.t-dev .tic { box-shadow: 0 0 14px rgba(232, 176, 70, .45); }
+
+
+/* ================= قالب مشترک صفحه‌های اقتصاد / توسعه / ارتش / جنگ / فروشگاه / بازار / وام / دیپلماسی =================
+   هر صفحه یک رنگ شاخص (--acc) دارد؛ بقیه‌ی طراحی مشترک است. */
+.ecoview { --acc: #8fa84a; --acc-hi: #c5d68a; --acc-rgb: 143,168,74; --acc-ink: #1b1100; }
+#ecoview { --acc: #2fd29a; --acc-hi: #86f2cb; --acc-rgb: 47,210,154; --acc-ink: #04251a; }
+body:has(#ecoview:not([hidden])) { background: radial-gradient(130% 50% at 50% 0%, rgba(47,210,154, .26) 0%, #171c23 50%, #0c0f13 100%) fixed; }
+#infraview { --acc: #f2b84b; --acc-hi: #ffe08a; --acc-rgb: 242,184,75; --acc-ink: #2a1700; }
+body:has(#infraview:not([hidden])) { background: radial-gradient(130% 50% at 50% 0%, rgba(242,184,75, .26) 0%, #171c23 50%, #0c0f13 100%) fixed; }
+#armyview { --acc: #4f9bff; --acc-hi: #a6ceff; --acc-rgb: 79,155,255; --acc-ink: #04172e; }
+body:has(#armyview:not([hidden])) { background: radial-gradient(130% 50% at 50% 0%, rgba(79,155,255, .26) 0%, #171c23 50%, #0c0f13 100%) fixed; }
+#warview { --acc: #ff6257; --acc-hi: #ffa79d; --acc-rgb: 255,98,87; --acc-ink: #2a0805; }
+body:has(#warview:not([hidden])) { background: radial-gradient(130% 50% at 50% 0%, rgba(255,98,87, .26) 0%, #171c23 50%, #0c0f13 100%) fixed; }
+#shopview { --acc: #b98cff; --acc-hi: #e0ccff; --acc-rgb: 185,140,255; --acc-ink: #1a0b33; }
+body:has(#shopview:not([hidden])) { background: radial-gradient(130% 50% at 50% 0%, rgba(185,140,255, .26) 0%, #171c23 50%, #0c0f13 100%) fixed; }
+#marketview { --acc: #2fd0cc; --acc-hi: #96f2ee; --acc-rgb: 47,208,204; --acc-ink: #04282a; }
+body:has(#marketview:not([hidden])) { background: radial-gradient(130% 50% at 50% 0%, rgba(47,208,204, .26) 0%, #171c23 50%, #0c0f13 100%) fixed; }
+#loanview { --acc: #ffd35e; --acc-hi: #fff0b0; --acc-rgb: 255,211,94; --acc-ink: #2a1d00; }
+body:has(#loanview:not([hidden])) { background: radial-gradient(130% 50% at 50% 0%, rgba(255,211,94, .26) 0%, #171c23 50%, #0c0f13 100%) fixed; }
+#dipview { --acc: #8fa0ff; --acc-hi: #c8d0ff; --acc-rgb: 143,160,255; --acc-ink: #0b1033; }
+body:has(#dipview:not([hidden])) { background: radial-gradient(130% 50% at 50% 0%, rgba(143,160,255, .26) 0%, #171c23 50%, #0c0f13 100%) fixed; }
+
+/* نوار بالایی (آواتار، جام، زنگ، اهداف، لوگو، منو) هم‌سبک صفحه‌ی خانه */
+.ecoview .hbar { padding: 0 2px 12px; margin-bottom: 14px; border-bottom: 1px solid rgba(var(--acc-rgb), .28); }
+.ecoview .hgrp { display: contents; }
+.ecoview .ibtn { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 20px;
+  background: radial-gradient(circle at 50% 30%, rgba(90,104,122, .6), rgba(14,18,24, .95)); border: 1.5px solid rgba(var(--acc-rgb), .55);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, .5), 0 0 10px rgba(var(--acc-rgb), .14); }
+.ecoview .avatar .flag.lg { width: 62px; height: 62px; border: 3px solid var(--acc); box-shadow: 0 0 14px rgba(var(--acc-rgb), .5); }
+.ecoview .lvl { background: linear-gradient(var(--acc-hi), var(--acc)); color: var(--acc-ink); border: 1px solid var(--acc-hi); }
+
+/* بنر عنوان: نماد بزرگ، عنوان درشت، موجودی در قرص */
+.ecoview .rach, .ecoview .wrbar, .ecoview .shbar, .ecoview .mkbar {
+  position: relative; overflow: hidden; min-height: 86px; padding: 14px 16px; margin-bottom: 16px; border-radius: 26px; gap: 12px;
+  border: 1.5px solid rgba(var(--acc-rgb), .6);
+  background: radial-gradient(80% 150% at 100% 0%, rgba(var(--acc-rgb), .32), transparent 65%), linear-gradient(165deg, #1b2430, #0f141b);
+  box-shadow: 0 0 24px rgba(var(--acc-rgb), .2), inset 0 0 30px rgba(var(--acc-rgb), .07);
+}
+.ecoview .rach b, .ecoview .wrbar b, .ecoview .shbar b, .ecoview .mkbar b { display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 800; letter-spacing: -.2px; }
+.ecoview .rach b img.ic, .ecoview .wrbar b img.ic, .ecoview .shbar b img.ic, .ecoview .mkbar b img.ic {
+  width: 50px; height: 50px; border-radius: 16px; vertical-align: middle; filter: drop-shadow(0 0 10px rgba(var(--acc-rgb), .6)); }
+.ecoview .rach .money, .ecoview .wrbar .money, .ecoview .shbar .money, .ecoview .mkbar .money {
+  font-size: 16px; font-weight: 800; padding: 7px 14px; border-radius: 999px; color: var(--acc-hi);
+  background: rgba(4, 12, 22, .72); border: 1px solid rgba(var(--acc-rgb), .5); }
+.ecoview .rach .go, .ecoview .wrbar .go, .ecoview .shbar .go, .ecoview .mkbar .go {
+  width: 46px; height: 46px; border: 1.5px solid rgba(var(--acc-rgb), .7); color: var(--acc-hi); background: rgba(4, 12, 22, .6); }
+
+/* تب‌ها و چیپ‌ها */
+.ecoview .ectab, .ecoview .artab, .ecoview .mktab, .ecoview .mkchip, .ecoview .wchip, .ecoview .dpkind {
+  color: var(--acc-hi); border-color: rgba(var(--acc-rgb), .42); background: rgba(var(--acc-rgb), .07); }
+.ecoview .ectab.on, .ecoview .artab.on, .ecoview .mktab.on, .ecoview .mkchip.on, .ecoview .wchip.on, .ecoview .dpkind.on,
+.ecoview .wtabs .wtab.on {
+  color: var(--acc-ink); font-weight: 800; border-color: var(--acc-hi); background: linear-gradient(160deg, var(--acc-hi), var(--acc));
+  box-shadow: 0 6px 16px rgba(var(--acc-rgb), .35); }
+.ecoview .ectab.on small { color: var(--acc-ink); opacity: .75; }
+.ecoview .wtabs { background: rgba(4, 12, 22, .6); border-color: rgba(var(--acc-rgb), .3); }
+.ecoview .wtabs .wtab { color: #cfd8e4; }
+.ecoview .ectab, .ecoview .mktab, .ecoview .artab { font-weight: 700; }
+
+/* کارت‌ها و پنل‌ها */
+.ecoview .ecitem, .ecoview .wcard, .ecoview .wpanel, .ecoview .wrow, .ecoview .wfront, .ecoview .mkpanel, .ecoview .mkinfo,
+.ecoview .shitem, .ecoview .lnbox, .ecoview .dpbox, .ecoview .ecpanel {
+  border-radius: 24px; border: 1px solid rgba(var(--acc-rgb), .3);
+  background: linear-gradient(165deg, rgba(var(--acc-rgb), .13), rgba(16, 21, 29, .94) 58%);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .28), inset 0 0 24px rgba(var(--acc-rgb), .04); }
+.ecoview .ecpanel, .ecoview .mkinfo { border: 1.5px solid rgba(var(--acc-rgb), .55); }
+.ecoview .ecitem.own { border-color: rgba(var(--acc-rgb), .65); background: linear-gradient(165deg, rgba(var(--acc-rgb), .22), rgba(16, 21, 29, .94) 62%); }
+.ecoview .ecitem.bld { border-color: rgba(79, 217, 160, .6); }
+.ecoview .ecitem.off { border-color: rgba(255, 255, 255, .22); }
+.ecoview .ecitem .nm { font-size: 20px; font-weight: 800; }
+.ecoview .ecitem .st b { font-size: 20px; font-weight: 800; }
+.ecoview .ecpanel .big { font-size: 40px; font-weight: 800; color: var(--acc-hi); letter-spacing: -.5px; }
+.ecoview .ecacc b { color: var(--acc-hi); font-size: 20px; font-weight: 800; }
+.ecoview .ecbar { height: 14px; background: rgba(255, 255, 255, .08); border: 1px solid rgba(var(--acc-rgb), .25); }
+.ecoview .ecbar i { background: linear-gradient(90deg, var(--acc), var(--acc-hi)); box-shadow: 0 0 10px rgba(var(--acc-rgb), .5); }
+.ecoview .shitem h4 { font-size: 20px; font-weight: 800; color: var(--acc-hi); }
+.ecoview .shitem .shpr { font-size: 18px; font-weight: 800; color: var(--acc-hi); }
+.ecoview .mkpanel .mkh { font-size: 18px; font-weight: 800; }
+.ecoview .mkinfo h3 { font-size: 22px; font-weight: 800; }
+.ecoview .mkidx { border-color: rgba(var(--acc-rgb), .5); background: rgba(var(--acc-rgb), .12); }
+.ecoview .wcard .wtx b, .ecoview .wrow .wn b { font-weight: 800; }
+
+/* دکمه‌های اصلی */
+.ecoview .eccollect, .ecoview .mkgo, .ecoview .arprod {
+  font-weight: 800; color: var(--acc-ink); background: linear-gradient(160deg, var(--acc-hi), var(--acc)); box-shadow: 0 8px 20px rgba(var(--acc-rgb), .3); }
+.ecoview .lnbtn, .ecoview .dpbtn { padding: 13px 16px; font-size: 14px; font-weight: 700; border-radius: 16px; color: var(--acc-hi); border-color: rgba(var(--acc-rgb), .7); background: rgba(var(--acc-rgb), .14); }
+.ecoview .lnbtn.full, .ecoview .dpbtn.full { font-size: 16px; font-weight: 800; color: var(--acc-ink); border: 0; background: linear-gradient(160deg, var(--acc-hi), var(--acc)); box-shadow: 0 8px 20px rgba(var(--acc-rgb), .28); }
+.ecoview .lnbtn.red, .ecoview .dpbtn.red { color: #ff9d8a; border: 1px solid rgba(255, 122, 122, .6); background: rgba(255, 122, 122, .12); box-shadow: none; }
+.ecoview .lnbtn:disabled, .ecoview .dpbtn:disabled { opacity: .45; }
+
+/* وام و دیپلماسی: متن‌ها خیلی ریز بودند؛ بزرگ‌تر و خواناتر شدند */
+.ecoview .lnbox, .ecoview .dpbox { padding: 16px; margin-bottom: 14px; }
+.ecoview .lnbox h3, .ecoview .dpbox h3 { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
+.ecoview .lnbox label, .ecoview .dpbox label { font-size: 14px; margin: 10px 0 6px; opacity: .9; color: #cfd8e4; }
+.ecoview .lnbox input, .ecoview .lnbox select, .ecoview .dpbox select { font-size: 14px; padding: 13px; border-radius: 14px; border-color: rgba(var(--acc-rgb), .35); background: rgba(4, 12, 22, .55); }
+.ecoview .lnsum div, .ecoview .dpsum div { font-size: 13px; padding: 12px 6px; border-radius: 16px; background: rgba(4, 12, 22, .6); border: 1px solid rgba(var(--acc-rgb), .22); color: #cfd8e4; }
+.ecoview .lnsum b, .ecoview .dpsum b { font-size: 20px; font-weight: 800; color: var(--acc-hi); margin-top: 6px; }
+.ecoview .dpbar { height: 12px; background: rgba(255, 255, 255, .08); }
+.ecoview .dpbar i { background: linear-gradient(90deg, var(--acc), var(--acc-hi)); }
+.ecoview .dpbar i.lo { background: linear-gradient(90deg, #c0392b, #ff7a7a); } .ecoview .dpbar i.mid { background: linear-gradient(90deg, #d9701f, #f59a3d); } .ecoview .dpbar i.hi { background: linear-gradient(90deg, #2fa77c, #62e6b5); }
+.ecoview .dpkind { font-size: 14px; padding: 13px 8px; border-radius: 16px; }
+.ecoview .dphint { font-size: 13px; line-height: 1.9; }
+.ecoview .lnitem .top, .ecoview .dpitem .top { font-size: 16px; font-weight: 800; }
+.ecoview .lnitem p, .ecoview .dpitem p { font-size: 14px; line-height: 1.9; opacity: .92; }
+.ecoview .lnitem .tag, .ecoview .dpitem .tag { font-size: 13px; font-weight: 700; padding: 4px 12px; background: rgba(var(--acc-rgb), .14); border: 1px solid rgba(var(--acc-rgb), .35); }
+.ecoview .lnempty, .ecoview .dpempty { font-size: 14px; line-height: 2; padding: 22px 14px; opacity: .75; }
+
+/* چیدمان نوار عنوان (تکرار صریح تا به بارگذاری استایل‌های game.js وابسته نباشد) */
+.ecoview .wrbar, .ecoview .shbar, .ecoview .mkbar { display: flex; align-items: center; }
+.ecoview .wrbar .go, .ecoview .shbar .go, .ecoview .mkbar .go { flex: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; font-size: 20px; padding: 0; }
+.ecoview .wrbar .money, .ecoview .shbar .money, .ecoview .mkbar .money { margin-inline-start: auto; direction: ltr; white-space: nowrap; }
+
+
+/* ================= اعلان‌ها / دیده‌بان / لابی / انتخاب کشور / تأیید کشور / گفتگو ================= */
+#notifview { --acc: #a78bff; --acc-hi: #d6c9ff; --acc-rgb: 167,139,255; --acc-ink: #150a33; }
+#scoutview { --acc: #5ec8ff; --acc-hi: #b9e8ff; --acc-rgb: 94,200,255; --acc-ink: #03202e; }
+body:has(#notifview:not([hidden])) { background: radial-gradient(130% 50% at 50% 0%, rgba(167,139,255, .26) 0%, #171c23 50%, #0c0f13 100%) fixed; }
+body:has(#scoutview:not([hidden])) { background: radial-gradient(130% 50% at 50% 0%, rgba(94,200,255, .24) 0%, #171c23 50%, #0c0f13 100%) fixed; }
+body:has(#lobbyview:not([hidden])), body:has(#cview:not([hidden])), body:has(#commview:not([hidden])) { background: radial-gradient(130% 55% at 50% 0%, #3a2c14 0%, #171c23 48%, #0c0f13 100%) fixed; }
+
+/* ---- اعلان‌ها ---- */
+.notifview .nhead { margin: 4px 4px 16px; }
+.notifview .nhead .cnt { font-size: 18px; font-weight: 800; color: #e4e9f1; }
+.notifview .nhead button { font-size: 14px; font-weight: 700; padding: 8px 16px; border-radius: 999px; color: var(--acc-hi); border: 1px solid rgba(var(--acc-rgb), .55); background: rgba(var(--acc-rgb), .12); }
+.notifview .nev { padding: 16px; border-radius: 24px; border: 1px solid rgba(var(--acc-rgb), .32);
+  background: linear-gradient(165deg, rgba(var(--acc-rgb), .14), rgba(16, 21, 29, .94) 58%); box-shadow: 0 6px 18px rgba(0, 0, 0, .28); }
+.notifview .nev .ni2 { width: 64px; height: 64px; border: 2px solid rgba(var(--acc-rgb), .65); box-shadow: 0 0 16px rgba(var(--acc-rgb), .35); }
+.notifview .nev .ni2 img.ic { width: 36px; height: 36px; }
+.notifview .nev .ni2.season { border-color: rgba(255, 196, 104, .8); box-shadow: 0 0 16px rgba(255, 196, 104, .35); }
+.notifview .nev .tx { font-size: 16px; font-weight: 700; line-height: 1.9; }
+.notifview .nev .sb { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 600; padding: 2px 12px; border-radius: 999px; color: var(--acc-hi); background: rgba(var(--acc-rgb), .14); }
+.notifview .nev .go { font-size: 24px; color: var(--acc-hi); }
+
+/* ---- دیده‌بان ---- */
+.scoutview { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+.scoutview .sh1 { position: relative; overflow: hidden; margin: 4px 0 12px; padding: 14px 16px; border-radius: 26px; min-height: 86px;
+  border: 1.5px solid rgba(var(--acc-rgb), .6); background: radial-gradient(80% 150% at 100% 0%, rgba(var(--acc-rgb), .3), transparent 65%), linear-gradient(165deg, #1b2430, #0f141b);
+  box-shadow: 0 0 24px rgba(var(--acc-rgb), .2), inset 0 0 30px rgba(var(--acc-rgb), .07); }
+.scoutview .sh1 h2 { display: flex; align-items: center; gap: 12px; font-size: 22px; }
+.scoutview .sh1 h2 img.ic { width: 50px; height: 50px; border-radius: 16px; filter: drop-shadow(0 0 10px rgba(var(--acc-rgb), .6)); }
+.scoutview .sht { display: flex; flex-direction: column; }
+.scoutview .sht b { font-size: 24px; font-weight: 800; line-height: 1.3; }
+.scoutview .sht small { font-size: 13px; font-weight: 400; color: #a9c4d8; margin-top: 2px; }
+.scoutview .qbtn { width: 42px; height: 42px; color: var(--acc-hi); border-color: rgba(var(--acc-rgb), .6); background: rgba(4, 12, 22, .6); }
+.scoutview .slead { font-size: 14px; color: #b6c2d1; margin: 0 4px 16px; }
+.scoutview .stabs { gap: 8px; }
+.scoutview .stab { color: var(--acc-hi); border: 1.5px solid rgba(var(--acc-rgb), .45); background: rgba(var(--acc-rgb), .08); font-weight: 700; }
+.scoutview .stab small { color: #a9c4d8; }
+.scoutview .stab.on { color: var(--acc-ink); border-color: var(--acc-hi); background: linear-gradient(160deg, var(--acc-hi), var(--acc)); box-shadow: 0 6px 16px rgba(var(--acc-rgb), .35); }
+.scoutview .stab.on small { color: var(--acc-ink); opacity: .75; }
+.scoutview .sw { border-radius: 24px; border: 1px solid rgba(var(--acc-rgb), .3); background: linear-gradient(165deg, rgba(var(--acc-rgb), .12), rgba(16, 21, 29, .94) 58%); box-shadow: 0 6px 18px rgba(0, 0, 0, .28); }
+.scoutview .sw.live { border-color: rgba(var(--acc-rgb), .6); box-shadow: 0 0 18px rgba(var(--acc-rgb), .18); }
+.scoutview .sw.past { filter: saturate(.55); }
+.scoutview .sw .sic { width: 60px; height: 60px; box-shadow: 0 0 14px rgba(var(--acc-rgb), .3); }
+.scoutview .sw .sn { font-size: 22px; font-weight: 800; }
+.scoutview .sw .sb { font-size: 13px; font-weight: 700; padding: 3px 14px; }
+.scoutview .sw .ssub { font-size: 14px; color: #b6c2d1; }
+.scoutview .sw .sbar { height: 8px; background: rgba(255, 255, 255, .09); }
+.scoutview .sw .sbar i { background: linear-gradient(90deg, var(--acc), var(--acc-hi)); box-shadow: 0 0 10px rgba(var(--acc-rgb), .5); }
+.scoutview .sw .sgo { color: var(--acc-hi); }
+.scoutview .empty { font-size: 14px; line-height: 2; }
+
+/* ---- لابی: انتخاب دنیا ---- */
+.lobby .lbar { flex-direction: column; justify-content: center; margin: 6px 0 20px; text-align: center; }
+.lobby .lbar .brand { flex-direction: column; gap: 4px; }
+.lobby .lbar .lgo { width: 76px; height: 76px; filter: drop-shadow(0 4px 16px rgba(143,168,74, .55)); }
+.lobby .lbar .bt { font-size: 34px; font-weight: 800; letter-spacing: 2px; line-height: 1.3;
+  background: linear-gradient(180deg, #fff1c0 10%, #8fa84a 95%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lobby .lbar .ltag { font-size: 14px; font-weight: 400; letter-spacing: 0; color: #a9b4c2; }
+.lobby .shopcard { padding: 16px; border-radius: 24px; border: 1.5px solid rgba(143,168,74, .6); box-shadow: 0 0 20px rgba(143,168,74, .16);
+  background: radial-gradient(90% 160% at 100% 0%, rgba(143,168,74, .28), transparent 70%), linear-gradient(165deg, #1f2630, #11161d); }
+.lobby .shopcard .ico { width: 64px; height: 64px; border-radius: 20px; }
+.lobby .shopcard .ico img.ic { width: 38px; height: 38px; }
+.lobby .shopcard b { font-size: 18px; font-weight: 800; margin-bottom: 2px; }
+.lobby .shopcard span { font-size: 13px; color: #c4cdd9; }
+.lobby #lscout { border-color: rgba(94, 200, 255, .6); box-shadow: 0 0 20px rgba(94, 200, 255, .16);
+  background: radial-gradient(90% 160% at 100% 0%, rgba(94, 200, 255, .26), transparent 70%), linear-gradient(165deg, #1f2630, #11161d); }
+.lobby #lscout .ico { background: rgba(94, 200, 255, .18); border-color: rgba(94, 200, 255, .6); }
+.lobby #lscout b { color: #b9e8ff; }
+.lobby h2 { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 800; margin: 28px 2px 8px; }
+.lobby h2::before { content: ""; width: 5px; height: 26px; border-radius: 3px; background: linear-gradient(180deg, #ffd98a, #8fa84a); flex: none; }
+.lobby .lead { font-size: 14px; color: #a9b4c2; }
+.lobby .world { padding: 16px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 6px 18px rgba(0, 0, 0, .28);
+  background: linear-gradient(165deg, rgba(255, 255, 255, .05), rgba(16, 21, 29, .94) 58%); }
+.lobby .world.live { border: 1.5px solid rgba(143,168,74, .7); box-shadow: 0 0 20px rgba(143,168,74, .18);
+  background: linear-gradient(165deg, rgba(143,168,74, .17), rgba(16, 21, 29, .94) 58%); }
+.lobby .world .wg { width: 60px; height: 60px; box-shadow: 0 0 14px rgba(91, 134, 214, .45); }
+.lobby .world .wg img.ic { width: 34px; height: 34px; }
+.lobby .world.past { filter: saturate(.55); }
+.lobby .world .wn { font-size: 22px; font-weight: 800; }
+.lobby .world .wm { font-size: 14px; color: #b6c2d1; margin-top: 4px; }
+.lobby .world .go { font-size: 30px; color: var(--gold); }
+
+/* ---- فهرست کشورها ---- */
+.top { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 14px; padding: 22px 14px 10px; }
+.top .toplogo { width: 64px; height: 64px; flex: none; filter: drop-shadow(0 4px 14px rgba(143,168,74, .5)); }
+.top h1 { font-size: 24px; font-weight: 800; line-height: 1.5; flex: 1; min-width: 0; }
+.top .sub { flex-basis: 100%; font-size: 14px; line-height: 1.8; margin-top: 4px; }
+.top .badge { font-size: 13px; font-weight: 700; padding: 5px 16px; margin-top: 6px; }
+.search { font-size: 14px; padding: 15px 18px; border-radius: 18px; border-color: rgba(143,168,74, .3); }
+.tabs { gap: 10px; padding: 4px 14px 10px; }
+.tab { font-size: 14px; font-weight: 700; padding: 13px 0; border-radius: 16px; border-color: rgba(143,168,74, .3); }
+.tab.on { color: #2a1700; border-color: #ffd98a; background: linear-gradient(160deg, #c5d68a, #d98428); box-shadow: 0 6px 16px rgba(143,168,74, .3); }
+.c { border-radius: 22px; min-height: 142px; border-color: rgba(143,168,74, .22); box-shadow: 0 6px 16px rgba(0, 0, 0, .25);
+  background: linear-gradient(165deg, rgba(143,168,74, .08), var(--card) 62%); }
+.c .flag { width: 54px; height: 54px; }
+.c .name { font-size: 16px; font-weight: 800; }
+.c .meta { font-size: 13px; }
+.c .mine { font-size: 13px; font-weight: 700; padding: 3px 12px; }
+.sec { font-size: 14px; font-weight: 800; padding-top: 14px; }
+
+/* ---- صفحه‌ی تأیید کشور ---- */
+.cview .hbar { padding: 0 2px 12px; margin-bottom: 14px; border-bottom: 1px solid rgba(143,168,74, .25); }
+.cview .ibtn, .lobby .ibtn, .commview .ibtn { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 20px;
+  background: radial-gradient(circle at 50% 30%, rgba(90, 104, 122, .6), rgba(14, 18, 24, .95)); border: 1.5px solid rgba(143,168,74, .5);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, .5), 0 0 10px rgba(143,168,74, .12); }
+.cview .backlnk { align-self: flex-start; width: fit-content; padding: 9px 18px; margin-bottom: 14px; border-radius: 999px; font-weight: 700;
+  border: 1px solid rgba(143,168,74, .5); background: rgba(143,168,74, .1); }
+.cview .cbox { border-radius: 26px; border: 1px solid rgba(143,168,74, .3); box-shadow: 0 6px 18px rgba(0, 0, 0, .28);
+  background: linear-gradient(165deg, rgba(143,168,74, .1), rgba(16, 21, 29, .94) 58%); }
+.cview .cbox.head { padding: 26px 16px 22px; border: 1.5px solid rgba(143,168,74, .6); box-shadow: 0 0 26px rgba(143,168,74, .2);
+  background: radial-gradient(90% 90% at 50% 0%, rgba(143,168,74, .3), transparent 70%), linear-gradient(165deg, #1f2630, #11161d); }
+.cview .cbox.head .flag { width: 118px; height: 118px; font-size: 62px; border: 4px solid #ffd98a; box-shadow: 0 0 28px rgba(255, 200, 90, .5); }
+.cview .cbox.head .cn { font-size: 32px; font-weight: 800; letter-spacing: -.3px; }
+.cview .cbox.head .cr { font-size: 14px; }
+.cview .cbox .row { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; margin: 0; padding: 14px 4px; font-size: 16px; color: #cfd8e4; border-top: 1px solid rgba(255, 255, 255, .08); }
+.cview .cbox .row:first-child { border-top: 0; }
+.cview .cbox .row b { font-size: 18px; font-weight: 800; color: #ffd98a; }
+.cview .cbox .row small { flex-basis: 100%; font-size: 14px; }
+.cview .cbox.warn { font-size: 14px; border-width: 1.5px; }
+.cview .cbtn { padding: 20px 14px; font-size: 18px; font-weight: 800; color: #2a1700; border: 0; border-radius: 22px;
+  background: linear-gradient(160deg, #c5d68a, #d98428); box-shadow: 0 10px 26px rgba(143,168,74, .35); }
+.cview .cbtn:disabled, .cview .cbtn[aria-disabled="true"] { opacity: .45; box-shadow: none; }
+
+/* ---- گفتگو ---- */
+.commview .hbar { padding: 0 2px 12px; margin-bottom: 12px; border-bottom: 1px solid rgba(143,168,74, .25); }
+.commview .cmbar { padding: 14px 16px; border-radius: 26px; border: 1.5px solid rgba(143,168,74, .6); min-height: 80px;
+  background: radial-gradient(80% 150% at 100% 0%, rgba(143,168,74, .28), transparent 65%), linear-gradient(165deg, #1b2430, #0f141b);
+  box-shadow: 0 0 22px rgba(143,168,74, .18); }
+.commview .cmbar b { font-size: 22px; font-weight: 800; gap: 12px; }
+.commview .cmbar b img.ic { width: 48px; height: 48px; border-radius: 15px; filter: drop-shadow(0 0 10px rgba(143,168,74, .55)); }
+.commview .cmbar .money { font-size: 16px; font-weight: 800; padding: 7px 14px; border-radius: 999px; color: #c5d68a; background: rgba(4, 12, 22, .72); border: 1px solid rgba(143,168,74, .5); }
+.commview .cmtab { font-size: 14px; font-weight: 700; border-radius: 18px; }
+.commview .cmtab.on { font-weight: 800; box-shadow: 0 6px 16px rgba(143,168,74, .35); }
+.commview .cmtext { font-size: 18px; }
+
+
+/* ================= کاشی‌های ردیفی صفحه‌ی خانه: لوگوی هم‌سبک و رنگ شاخص هر بخش ================= */
+.homeview .tile.row { --ta: 143,168,74; --th: #c5d68a; border: 1.5px solid rgba(var(--ta), .5); border-radius: 22px; padding: 12px 14px; gap: 12px;
+  background: radial-gradient(90% 160% at 100% 0%, rgba(var(--ta), .2), transparent 70%), linear-gradient(165deg, #1b2430, #10151c);
+  box-shadow: 0 0 14px rgba(var(--ta), .12); }
+.homeview .tile.t-eco { --ta: 47,210,154; --th: #86f2cb; }
+.homeview .tile.t-army { --ta: 79,155,255; --th: #a6ceff; }
+.homeview .tile.t-dip { --ta: 143,160,255; --th: #c8d0ff; }
+.homeview .tile.t-market { --ta: 47,208,204; --th: #96f2ee; }
+.homeview .tile.t-loan { --ta: 255,211,94; --th: #fff0b0; }
+.homeview .tile.t-stat { --ta: 94,200,255; --th: #b9e8ff; }
+.homeview .tile.row .mi { width: 56px; height: 56px; border-radius: 17px; background: none; box-shadow: 0 0 14px rgba(var(--ta), .5); border: 1.5px solid rgba(var(--ta), .65); overflow: hidden; }
+.homeview .tile.row .mi img.mic { width: 100%; height: 100%; display: block; pointer-events: none; -webkit-user-drag: none; }
+.homeview .tile.row h4 { font-size: 16px; font-weight: 800; color: #fff; }
+.homeview .tile.row p { font-size: 13px; color: #b6c2d1; }
+
+/* ---- مرتب‌سازی کادرهای صفحه‌ی اصلی: متن و آیکن هیچ‌وقت از کادر بیرون نزنند ---- */
+.homeview .tile.row > div { flex: 1 1 0; min-width: 0; }
+.homeview .tile.row h4, .homeview .tile.row p { overflow-wrap: anywhere; word-break: normal; }
+.homeview .tile.row h4 { line-height: 1.35; }
+.homeview .tile .trow { min-width: 0; }
+.homeview .tile .tgrp { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1 1 auto; }
+.homeview .tile .tgrp h3 { min-width: 0; white-space: nowrap; }
+.homeview .tile .tgrp .tic { flex: none; }
+@media (max-width: 380px) {
+  .homeview .tile.row { gap: 8px; padding: 10px 8px; }
+  .homeview .tile.row .mi { width: 38px; height: 38px; border-radius: 12px; }
+  .homeview .tile.row .mi img { width: 40px; height: 40px; }
+  .homeview .tile.row h4 { font-size: 14px; }
+  .homeview .tile.row p { font-size: 12px; }
+  .homeview .tiles.big .tile { padding: 12px 10px 10px; }
+  .tile .trow { gap: 4px; }
+  .homeview .tile .trow h3 { font-size: 16px; }
+  .homeview .tile .tgrp { gap: 5px; }
+  .homeview .tile .tgrp .tic { width: 30px; height: 30px; }
+  .homeview .tile .go { width: 24px; height: 24px; font-size: 16px; padding-bottom: 2px; }
+  .homeview .tiles.big .tile p { font-size: 12px; }
+}
+@media (min-width: 381px) and (max-width: 440px) {
+  .homeview .tile .trow { gap: 6px; }
+  .homeview .tile .trow h3 { font-size: 20px; }
+  .homeview .tile .tgrp { gap: 6px; }
+  .homeview .tile .tgrp .tic { width: 40px; height: 40px; }
+  .homeview .tile .go { width: 28px; height: 28px; font-size: 18px; }
+}
+
+/* ======================= سیستم یکدست دکمه‌ها =======================
+   اندازه‌ها از روی ربات مرجع (اسکرین‌شات‌های کاربر) گرفته شده‌اند: جمع‌وجور و هم‌قد.
+   رده‌ها: اصلی (۴۲) · ثانویه (۳۶) · تب (۳۴) · چیپ (۲۸) · دایره‌ای (۴۰؛ بالای صفحه ۴۴).
+   فقط اندازه/گوشه/فونت را یکی می‌کند؛ رنگ و پس‌زمینه دست‌نخورده‌اند.
+   :root:root برای این است که روی استایل‌هایی که game.js هنگام اجرا می‌افزاید هم غالب باشد. */
+:root:root :is(.cbtn, .cview .cbtn, .terr-btn, .ecbuy, .lnbtn.full, .dpbtn.full, .eccollect, .mkgo, .arprod, .noseason button, .sheet .btns button, .wgo, .wact, .shrbtn:not(.alt), .chsend, .cmpost) {
+  min-height: 42px; padding: 8px 16px; border-radius: 14px; font-size: 14px; line-height: 1.4;
+  display: inline-flex; align-items: center; justify-content: center; text-align: center; gap: 6px; box-sizing: border-box;
+}
+:root:root :is(.cbtn, .cview .cbtn, .terr-btn, .ecbuy) { display: flex; width: 100%; }
+:root:root :is(.lnbtn:not(.full), .dpbtn:not(.full), .dpkind, .ecsort button, .notifview .nhead button, .shrbtn.alt, .ppback, .gvopt, .glx, .wmore, .arres) {
+  min-height: 36px; padding: 6px 14px; border-radius: 12px; font-size: 14px; line-height: 1.4;
+  display: inline-flex; align-items: center; justify-content: center; text-align: center; gap: 6px; box-sizing: border-box;
+}
+:root:root :is(.tab, .ectab, .artab, .mktab, .cmtab, .rtab, .stab, .wtab, .lntab) {
+  min-height: 34px; padding: 5px 12px; border-radius: 12px; font-size: 14px; line-height: 1.35; box-sizing: border-box;
+}
+:root:root :is(.cmchip, .mkchip, .wchip, .chip, .fxbtn) {
+  min-height: 28px; padding: 3px 12px; border-radius: 999px; font-size: 13px; line-height: 1.4;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box;
+}
+:root:root :is(.qbtn, .arhelp, .mkq, .mkx) {
+  width: 36px; height: 36px; min-width: 36px; padding: 0; border-radius: 50%; font-size: 14px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+}
+:root:root .ibtn, :root:root .homeview .ibtn { width: 44px; height: 44px; border-radius: 50%; }
+:root:root :is(button, .btn):disabled { cursor: not-allowed; }
+:root:root :is(button, [role=button], .tab, .ectab, .artab, .mktab, .cmtab, .rtab, .stab, .wtab, .mkchip, .wchip, .cmchip) { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+:root:root .shitem .shpr { font-size: 16px; max-width: 36%; text-align: center; }
+:root:root .shitem .shtx { flex: 1 1 0; min-width: 0; }
+
+/* اندازه‌ی پایه‌ی متن: هر جا font-size جدا نداشته باشد همین را می‌گیرد (قبلاً ۱۶ پیش‌فرض مرورگر بود و با بقیه نمی‌خواند) */
+html body { font-size: 14px; }
+html body :is(button, input, textarea, select) { font-size: inherit; }
+
+/* آیکون‌های ردیف‌های صفحه‌ی اصلی (اقتصاد، ارتش، دیپلماسی، بازار جهانی، وام و مالیات، آمار کشور)
+   هم‌اندازه‌ی آیکون جنگ و توسعه (.tic): ۴۸ / ۴۰ (۳۸۱–۴۴۰) / ۳۰ (تا ۳۸۰) */
+.homeview .tile.row .mi { width: 48px; height: 48px; border-radius: 14px; }
+.homeview .tile.row .mi img.mic { width: 100%; height: 100%; }
+@media (min-width: 381px) and (max-width: 440px) {
+  .homeview .tile.row .mi { width: 40px; height: 40px; border-radius: 12px; }
+}
+@media (max-width: 380px) {
+  .homeview .tile.row .mi { width: 30px; height: 30px; border-radius: 10px; }
+  .homeview .tile.row .mi img.mic { width: 100%; height: 100%; }
+}
+
+/* کارت بالای صفحه‌ی خانه (خزانه، جمعیت، انرژی، فصل): اندازه‌ی متن‌ها جمع‌وجورتر، مثل ربات مرجع */
+.homeview .hero .htitle { font-size: 13px; }
+.homeview .hero .pill { font-size: 12px; }
+.homeview .hero .lbl { font-size: 12px; }
+.homeview .hero .cash { font-size: 22px; margin: 4px 0 2px; letter-spacing: 0; }
+.homeview .hero .cash.pop { font-size: 20px; margin-top: 2px; }
+.homeview .hero .inc { font-size: 12px; }
+.homeview .hero .poplbl { margin-top: 10px; }
+.homeview .hero .stat .val { font-size: 20px; margin-top: 2px; }
+.homeview .hero .stat .lbl { font-size: 12px; }
+.homeview .hero .stat .sub { font-size: 11px; }
+.homeview .hero .sat-top { font-size: 13px; }
+.homeview .hero .sat-top b { font-size: 15px; }
+.homeview .hero .rowx, .homeview .hero .rowx b { font-size: 13px; }
+.homeview .hero .muted, .homeview .hero .season .stxt .muted { font-size: 12px; }
+.homeview .hero .season .stxt b { font-size: 15px; }
+.homeview .hero .fxbtn { font-size: 12px; padding: 7px 10px; }
+.homeview .hero .panel hr { margin: 10px 0; }
+
+
+/* ======================= دکمه‌های تأیید (سبز زیتونی) =======================
+   یک ظاهر یکدست برای همه‌ی دکمه‌های تأیید/ثبت/خرید/ارتقا. فقط رنگ، حاشیه، سایه و حالت‌ها؛
+   رویدادها و منطق دست‌نخورده‌اند. برای تغییر رنگ فقط متغیرهای --ok-* را عوض کنید.
+   :root:root:root برای غلبه بر استایل‌های game.js (که هنگام اجرا افزوده می‌شود). */
+:root {
+  --ok-top: #78864c;  --ok-bottom: #536333;  --ok-border: #a1ad70;
+  --ok-top-hi: #86955a;  --ok-bottom-hi: #5f7139;
+  --ok-shadow: rgba(83, 99, 51, .4);
+  --ok-glow: rgba(143, 168, 74, .55);  /* هاله‌ی نئونی دور دکمه */
+}
+:root:root:root :is(.cbtn, .cview .cbtn, .cfgo, .mkgo, .ecoview .mkgo, .ecbuy:not(.max), .lnbtn.full, .dpbtn.full, .ecoview .lnbtn.full, .ecoview .dpbtn.full, .artab.okbtn) {
+  position: relative; color: #fff; font-family: inherit; font-weight: 800; letter-spacing: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+  background: linear-gradient(180deg, var(--ok-top), var(--ok-bottom));
+  border: 1.5px solid var(--ok-border);
+  box-shadow: 0 0 0 1px rgba(161, 173, 112, .35), 0 0 16px var(--ok-glow), 0 0 36px rgba(120, 134, 76, .35),
+              0 10px 24px var(--ok-shadow), inset 0 1px 0 rgba(255, 255, 255, .3), inset 0 -2px 6px rgba(0, 0, 0, .18);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease, background .18s ease;
+}
+/* اندازه (به‌جز .cfgo که ابعادش با واحد --u ثابت شده است) */
+:root:root:root :is(.cbtn, .cview .cbtn, .mkgo, .ecoview .mkgo, .ecbuy:not(.max), .lnbtn.full, .dpbtn.full, .ecoview .lnbtn.full, .ecoview .dpbtn.full, .artab.okbtn) {
+  min-height: 48px; padding: 10px 22px; border-radius: 16px; font-size: 16px; line-height: 1.5;
+}
+:root:root:root .cview .cbtn { min-height: 54px; font-size: 18px; border-radius: 18px; }
+:root:root:root .artab.okbtn { justify-content: center; }
+@media (hover: hover) {
+  :root:root:root :is(.cbtn, .cview .cbtn, .cfgo, .mkgo, .ecoview .mkgo, .ecbuy:not(.max), .lnbtn.full, .dpbtn.full, .ecoview .lnbtn.full, .ecoview .dpbtn.full, .artab.okbtn):not(:disabled):not([aria-disabled="true"]):hover {
+    background: linear-gradient(180deg, var(--ok-top-hi), var(--ok-bottom-hi));
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 1px rgba(161, 173, 112, .5), 0 0 22px var(--ok-glow), 0 0 48px rgba(120, 134, 76, .45),
+                0 14px 28px var(--ok-shadow), inset 0 1px 0 rgba(255, 255, 255, .36), inset 0 -2px 6px rgba(0, 0, 0, .18);
+  }
+}
+:root:root:root :is(.cbtn, .cview .cbtn, .cfgo, .mkgo, .ecoview .mkgo, .ecbuy:not(.max), .lnbtn.full, .dpbtn.full, .ecoview .lnbtn.full, .ecoview .dpbtn.full, .artab.okbtn):not(:disabled):not([aria-disabled="true"]):active {
+  transform: translateY(1px) scale(.98); filter: brightness(.94);
+  box-shadow: 0 0 10px var(--ok-glow), 0 3px 10px var(--ok-shadow), inset 0 2px 6px rgba(0, 0, 0, .28);
+}
+:root:root:root :is(.cbtn, .cview .cbtn, .cfgo, .mkgo, .ecoview .mkgo, .ecbuy:not(.max), .lnbtn.full, .dpbtn.full, .ecoview .lnbtn.full, .ecoview .dpbtn.full, .artab.okbtn):focus-visible {
+  outline: 2px solid var(--ok-border); outline-offset: 3px;
+}
+/* غیرفعال: همان شکل، کم‌رنگ و بدون سایه و حرکت */
+:root:root:root :is(.cbtn, .cview .cbtn, .cfgo, .mkgo, .ecoview .mkgo, .ecbuy:not(.max), .lnbtn.full, .dpbtn.full, .ecoview .lnbtn.full, .ecoview .dpbtn.full, .artab.okbtn):is(:disabled, [aria-disabled="true"]) {
+  opacity: .5; filter: saturate(.6); box-shadow: none; transform: none; cursor: not-allowed; color: rgba(255, 255, 255, .85);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:root:root :is(.cbtn, .cview .cbtn, .cfgo, .mkgo, .ecoview .mkgo, .ecbuy:not(.max), .lnbtn.full, .dpbtn.full, .ecoview .lnbtn.full, .ecoview .dpbtn.full, .artab.okbtn) { transition: none; }
+}
+
+/* تیک وکتوری سفید کنار متن دکمه‌های تأیید (بدون ایموجی). در RTL سمت چپ متن می‌نشیند. */
+:root:root:root :is(.cbtn, .cview .cbtn, .cfgo, .mkgo:not(.nock), .ecoview .mkgo:not(.nock), .ecbuy:not(.max), .lnbtn.full, .dpbtn.full, .ecoview .lnbtn.full, .ecoview .dpbtn.full, .artab.okbtn):not(:disabled)::after {
+  content: ""; display: inline-block; flex: none; vertical-align: middle; box-sizing: border-box;
+  width: 1.45em; height: 1.45em; margin-inline-start: .6em; border-radius: 50%;
+  background: center / 62% no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E"),
+              rgba(20, 28, 12, .38);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .28);
+}
+:root:root:root .cfgo { border-radius: 18px; }
+
+/* =====================================================================
+   صفحه‌ی ارتش: اندازه‌ی یکسان لوگوها و دکمه‌ها + جلوگیری از بیرون‌زدن از کادر
+   (آخرِ فایل است تا روی استایل‌های قبلی و استایل‌هایی که game.js هنگام اجرا می‌افزاید غالب باشد)
+   ===================================================================== */
+:root:root #armyview { overflow-x: clip; }
+:root:root #armyview .ecpanel, :root:root #armyview .ecitem, :root:root #armyview .rach { max-width: 100%; box-sizing: border-box; }
+:root:root #armyview .sub, :root:root #armyview .arnote, :root:root #armyview .dsc { overflow-wrap: anywhere; }
+
+/* نوار بالا: همه‌ی دکمه‌ها و لوگوها هم‌اندازه */
+:root:root #armyview .hbar .ibtn { width: 44px; height: 44px; min-width: 44px; padding: 0; flex: none; display: flex; align-items: center; justify-content: center; }
+:root:root #armyview .hbar .ibtn img.ic { width: 22px; height: 22px; vertical-align: middle; }
+:root:root #armyview .hbar .lgo { width: 36px; height: 36px; object-fit: contain; flex: none; }
+
+/* بنر «ارتش»: لوگو، موجودی و دکمه‌ی فلش همه داخل کادر بمانند */
+:root:root #armyview .rach { flex-wrap: nowrap; gap: 8px; padding: 12px 14px; }
+:root:root #armyview .rach b { flex: 1 1 auto; min-width: 0; font-size: 20px; gap: 10px; white-space: nowrap; }
+:root:root #armyview .rach b img.ic { width: 44px; height: 44px; flex: none; object-fit: contain; }
+:root:root #armyview .rach .money { flex: 0 1 auto; min-width: 0; max-width: 46%; font-size: 14px; padding: 6px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:root:root #armyview .rach .go { width: 40px; height: 40px; min-width: 40px; flex: none; }
+
+/* عنوان پنل‌ها: عنوان، دکمه‌ی «؟» و عدد بزرگ زیر هم نریزند و بیرون نزنند */
+:root:root #armyview .ecpanel .inh { flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+:root:root #armyview .ecpanel .inh > span:first-child { flex: 1 1 130px; min-width: 0; font-size: 18px; }
+:root:root #armyview .ecpanel .inh > span:first-child b { font-size: 18px; }
+:root:root #armyview .ecpanel .inh .bg { flex: 0 1 auto; max-width: 100%; font-size: 24px; overflow-wrap: anywhere; }
+:root:root #armyview .arhelp { width: 32px; height: 32px; min-width: 32px; flex: none; }
+:root:root #armyview .arlab { flex-wrap: wrap; gap: 4px 10px; }
+:root:root #armyview .arlab > span { min-width: 0; }
+:root:root #armyview .arlink { display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 0; white-space: normal; text-align: right; }
+
+/* جعبه‌های پایگاه‌ها: دو ستونِ هم‌اندازه؛ جعبه‌ی تنهای آخر تمام‌عرض */
+:root:root #armyview .ingrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+:root:root #armyview .ingrid > .inbx:last-child:nth-child(odd) { grid-column: 1 / -1; }
+:root:root #armyview .inbx { min-width: 0; overflow: hidden; padding: 10px 12px; }
+:root:root #armyview .inbx .ar-h { flex-wrap: wrap; gap: 4px 6px; font-size: 14px; }
+:root:root #armyview .inbx img.ic { width: 20px; height: 20px; flex: none; }
+
+/* تب‌های شاخه (زمینی، هوایی، …): هم‌قد و هم‌اندازه */
+:root:root #armyview .artab { min-height: 42px; padding: 6px 16px; font-size: 14px; white-space: nowrap; gap: 8px; }
+:root:root #armyview .artab img.ic { width: 20px; height: 20px; flex: none; }
+
+/* کارت یگان: لوگوی هم‌اندازه، چیپ‌ها داخل کادر */
+:root:root #armyview .ecitem .top { gap: 10px; }
+:root:root #armyview .ecitem .ic { width: 52px; height: 52px; min-width: 52px; font-size: 26px; }
+:root:root #armyview .ecitem .ic img.ic { width: 32px; height: 32px; object-fit: contain; }
+:root:root #armyview .ecitem .nm { font-size: 18px; overflow-wrap: anywhere; }
+:root:root #armyview .ecitem .st { max-width: 40%; min-width: 56px; }
+:root:root #armyview .ecchips { gap: 6px; }
+:root:root #armyview .ecchip { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; box-sizing: border-box; min-height: 30px; padding: 4px 11px; font-size: 13px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
+:root:root #armyview .ecchip img.ic { width: 16px; height: 16px; flex: none; }
+:root:root #armyview .ecbl .t { flex-wrap: wrap; gap: 4px 10px; }
+:root:root #armyview .ecbl .t span { min-width: 0; overflow-wrap: anywhere; }
+
+/* ردیف دکمه‌های کارت: «تولید» تمام‌عرض بالا، «تحقیق» و «جابه‌جایی» دو دکمه‌ی هم‌اندازه زیرش */
+:root:root #armyview .aract { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+:root:root #armyview .aract .arprod { grid-column: 1 / -1; order: -1; min-height: 48px; padding: 8px 14px; font-size: 16px; border-radius: 16px; }
+:root:root #armyview .aract .arres { min-height: 44px; padding: 6px 10px; font-size: 14px; border-radius: 14px; white-space: normal; text-align: center;
+  color: var(--acc-hi); border: 1px solid rgba(var(--acc-rgb), .5); background: rgba(var(--acc-rgb), .1); }
+:root:root #armyview .aract .arres.off { color: var(--hint); border-color: rgba(255, 255, 255, .18); background: rgba(255, 255, 255, .04); }
+:root:root #armyview .aract .arres:first-of-type:nth-last-of-type(2) { grid-column: 1 / -1; }
+:root:root #armyview .aract img.ic { width: 18px; height: 18px; flex: none; }
+
+/* پنجره‌ی انتخاب شهر/شاخه (از پایین بالا می‌آید) */
+:root:root .arcity { box-sizing: border-box; max-width: 100%; }
+:root:root .arcity .artab { width: 100%; box-sizing: border-box; justify-content: flex-start; min-height: 46px; white-space: normal; text-align: right; }
+:root:root .arcity .artab img.ic { width: 20px; height: 20px; flex: none; }
+
+/* =====================================================================
+   صفحه‌ی اقتصاد: اندازه‌ی یکسان لوگوها و دکمه‌ها + جلوگیری از بیرون‌زدن از کادر
+   ===================================================================== */
+:root:root #ecoview { overflow-x: clip; }
+:root:root #ecoview :is(.ecpanel, .ecitem, .ecsyn, .rach, .rbox) { max-width: 100%; box-sizing: border-box; }
+:root:root #ecoview :is(.sub, .cmfoot, .rbox, .ecsyn p) { overflow-wrap: anywhere; }
+
+/* نوار بالا و بنر «اقتصاد» */
+:root:root #ecoview .hbar .ibtn { width: 44px; height: 44px; min-width: 44px; padding: 0; flex: none; display: flex; align-items: center; justify-content: center; }
+:root:root #ecoview .hbar .ibtn img.ic { width: 22px; height: 22px; vertical-align: middle; }
+:root:root #ecoview .hbar .lgo { width: 36px; height: 36px; object-fit: contain; flex: none; }
+:root:root #ecoview .rach { flex-wrap: nowrap; gap: 8px; padding: 12px 14px; }
+:root:root #ecoview .rach b { flex: 1 1 auto; min-width: 0; font-size: 20px; gap: 10px; white-space: nowrap; }
+:root:root #ecoview .rach b img.ic { width: 44px; height: 44px; flex: none; object-fit: contain; }
+:root:root #ecoview .rach .money { flex: 0 1 auto; min-width: 0; max-width: 46%; font-size: 14px; padding: 6px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:root:root #ecoview .rach .go { width: 40px; height: 40px; min-width: 40px; flex: none; }
+
+/* پنل موجودی خزانه: عدد بزرگ از کادر بیرون نزند */
+:root:root #ecoview .ecpanel .big { font-size: clamp(26px, 9vw, 36px); max-width: 100%; overflow-wrap: anywhere; line-height: 1.3; }
+:root:root #ecoview .ecpanel .lbl { font-size: 14px; }
+:root:root #ecoview .ecpanel img.ic, :root:root #ecoview .rbox img.ic { width: 18px; height: 18px; vertical-align: -.2em; }
+
+/* تب‌های دسته‌ها: هم‌قد و هم‌اندازه */
+:root:root #ecoview .ectab { min-height: 56px; min-width: 72px; padding: 8px 14px; font-size: 14px; line-height: 1.4; white-space: nowrap; box-sizing: border-box; }
+:root:root #ecoview .ectab img.ic { width: 20px; height: 20px; vertical-align: middle; }
+:root:root #ecoview .ectab small { font-size: 12px; line-height: 1.3; }
+
+/* ترتیب */
+:root:root #ecoview .ecsort { flex-wrap: wrap; gap: 8px; }
+:root:root #ecoview .ecsort button { min-height: 36px; padding: 6px 16px; font-size: 14px; }
+
+/* هم‌افزایی بخش */
+:root:root #ecoview .ecsyn h4 { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+:root:root #ecoview .ecsyn img.ic { width: 20px; height: 20px; flex: none; vertical-align: middle; }
+:root:root #ecoview .ecsyn .tier { max-width: 100%; margin-inline-end: 6px; line-height: 1.7; overflow-wrap: anywhere; }
+:root:root #ecoview .ecsyn .sr { gap: 10px; font-size: 15px; }
+:root:root #ecoview .ecsyn .sr > span:first-child { flex: 0 1 44%; min-width: 0; display: flex; align-items: center; gap: 6px; overflow-wrap: anywhere; }
+:root:root #ecoview .ecsyn .sr .bar { flex: 1 1 40px; min-width: 40px; }
+:root:root #ecoview .ecsyn .sr .n { flex: none; }
+
+/* کارت هر بخش: لوگو هم‌اندازه، چیپ‌ها و نوار ساخت داخل کادر */
+:root:root #ecoview .ecitem .top { gap: 10px; }
+:root:root #ecoview .ecitem .ic { width: 52px; height: 52px; min-width: 52px; font-size: 26px; }
+:root:root #ecoview .ecitem .ic img.ic { width: 32px; height: 32px; object-fit: contain; }
+:root:root #ecoview .ecitem .nm { font-size: 18px; overflow-wrap: anywhere; }
+:root:root #ecoview .ecitem .st { max-width: 42%; min-width: 72px; font-size: 13px; overflow-wrap: anywhere; }
+:root:root #ecoview .ecitem .st b { font-size: 18px; overflow-wrap: anywhere; }
+:root:root #ecoview .ecchips { gap: 6px; }
+:root:root #ecoview .ecchip { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; box-sizing: border-box; min-height: 30px; padding: 4px 11px; font-size: 13px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
+:root:root #ecoview .ecchip img.ic { width: 16px; height: 16px; flex: none; }
+:root:root #ecoview .ecbl .t { flex-wrap: wrap; gap: 4px 10px; }
+:root:root #ecoview .ecbl .t span { min-width: 0; overflow-wrap: anywhere; }
+:root:root #ecoview .ecbl img.ic { width: 18px; height: 18px; }
+
+/* دکمه‌ی خرید/ارتقا: یک اندازه، متن بلند بشکند و بیرون نزند */
+:root:root #ecoview .ecbuy { display: flex; width: 100%; min-height: 50px; padding: 10px 16px; font-size: 16px; line-height: 1.5; white-space: normal; text-align: center; overflow-wrap: anywhere; box-sizing: border-box; }
+:root:root #ecoview .ecbuy img.ic { width: 20px; height: 20px; flex: none; }
+
+/* برگه‌ی تأیید ساخت/ارتقا: ردیف‌ها اگر جا نبود به خط بعد بروند */
+:root:root .cfsheet .cfhead b { min-width: 0; overflow-wrap: anywhere; padding-inline-end: 8px; }
+:root:root .cfsheet .cflvl { flex-wrap: wrap; row-gap: calc(14 * var(--u)); }
+:root:root .cfsheet .cfrow.in { height: auto; min-height: calc(96 * var(--u)); flex-wrap: wrap; gap: calc(8 * var(--u)) calc(20 * var(--u)); padding: calc(10 * var(--u)) 0; }
+:root:root .cfsheet .cfv { flex-wrap: wrap; }
+:root:root .cfsheet .cft { min-width: 0; overflow-wrap: anywhere; }
+:root:root .cfsheet img.ic { width: 1.1em; height: 1.1em; vertical-align: middle; }
+
+/* =====================================================================
+   صفحه‌ی زیرساخت: اندازه‌ی یکسان لوگوها و دکمه‌ها + جلوگیری از بیرون‌زدن از کادر
+   ===================================================================== */
+:root:root #infraview { overflow-x: clip; }
+:root:root #infraview :is(.ecpanel, .ecitem, .rach, .rbox, .inbx) { max-width: 100%; box-sizing: border-box; }
+:root:root #infraview :is(.sub, .cmfoot, .rbox, .dsc) { overflow-wrap: anywhere; }
+
+/* نوار بالا و بنر «زیرساخت» */
+:root:root #infraview .hbar .ibtn { width: 44px; height: 44px; min-width: 44px; padding: 0; flex: none; display: flex; align-items: center; justify-content: center; }
+:root:root #infraview .hbar .ibtn img.ic { width: 22px; height: 22px; vertical-align: middle; }
+:root:root #infraview .hbar .lgo { width: 36px; height: 36px; object-fit: contain; flex: none; }
+:root:root #infraview .rach { flex-wrap: nowrap; gap: 8px; padding: 12px 14px; }
+:root:root #infraview .rach b { flex: 1 1 auto; min-width: 0; font-size: 20px; gap: 10px; white-space: nowrap; }
+:root:root #infraview .rach b img.ic { width: 44px; height: 44px; flex: none; object-fit: contain; }
+:root:root #infraview .rach .money { flex: 0 1 auto; min-width: 0; max-width: 46%; font-size: 14px; padding: 6px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:root:root #infraview .rach .go { width: 40px; height: 40px; min-width: 40px; flex: none; }
+
+/* عنوان «زیرساخت» + «x از y ساخته شده» + دکمه‌ی «؟» */
+:root:root #infraview .infhead { flex-wrap: wrap; gap: 6px 10px; }
+:root:root #infraview .infhead b { font-size: 20px; }
+:root:root #infraview .infhead .mut { flex: 1 1 120px; min-width: 0; font-size: 14px; }
+:root:root #infraview .qbtn { width: 36px; height: 36px; min-width: 36px; flex: none; }
+
+/* پنل خلاصه‌ی هر دسته */
+:root:root #infraview .ecpanel { padding: 16px 14px; }
+:root:root #infraview .ecpanel .inh { flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+:root:root #infraview .ecpanel .inh b { flex: 1 1 130px; min-width: 0; font-size: 18px; overflow-wrap: anywhere; }
+:root:root #infraview .ecpanel .inh .bg { flex: 0 1 auto; max-width: 100%; font-size: 26px; overflow-wrap: anywhere; }
+:root:root #infraview .ecpanel .inh .mut { flex: 1 1 100%; font-size: 13px; }
+:root:root #infraview .ecpanel img.ic, :root:root #infraview .rbox img.ic, :root:root #infraview .indiv img.ic { width: 18px; height: 18px; flex: none; vertical-align: -.2em; }
+
+/* ردیف‌های «نام ... مقدار»: متن بلند به خط بعد برود و از کادر بیرون نزند */
+:root:root #infraview .inrow { align-items: flex-start; gap: 8px 12px; font-size: 15px; padding: 8px 0; }
+:root:root #infraview .inrow > span:first-child { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; }
+:root:root #infraview .inrow > span:last-child { flex: 0 1 auto; max-width: 52%; text-align: left; overflow-wrap: anywhere; }
+:root:root #infraview .inrow.sm { font-size: 13px; padding: 5px 10px; }
+:root:root #infraview .indiv { font-size: 14px; }
+
+/* جعبه‌های ظرفیت (پایگاه‌ها): دو ستونِ هم‌اندازه */
+:root:root #infraview .ingrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+:root:root #infraview .ingrid > .inbx:last-child:nth-child(odd) { grid-column: 1 / -1; }
+:root:root #infraview .inbx { min-width: 0; overflow: hidden; padding: 10px 12px; }
+:root:root #infraview .inbx > div:first-child { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; }
+:root:root #infraview .inbx img.ic { width: 20px; height: 20px; flex: none; }
+
+/* تب‌های دسته‌ها */
+:root:root #infraview .ectab { min-height: 56px; min-width: 72px; padding: 8px 14px; font-size: 14px; line-height: 1.4; white-space: nowrap; box-sizing: border-box; }
+:root:root #infraview .ectab img.ic { width: 20px; height: 20px; vertical-align: middle; }
+:root:root #infraview .ectab small { font-size: 12px; line-height: 1.3; }
+
+/* کارت هر ساختمان */
+:root:root #infraview .ecitem .top { gap: 10px; }
+:root:root #infraview .ecitem .ic { width: 52px; height: 52px; min-width: 52px; font-size: 26px; }
+:root:root #infraview .ecitem .ic img.ic { width: 32px; height: 32px; object-fit: contain; }
+:root:root #infraview .ecitem .nm { font-size: 18px; overflow-wrap: anywhere; }
+:root:root #infraview .ecitem .st { max-width: 42%; min-width: 72px; font-size: 13px; overflow-wrap: anywhere; }
+:root:root #infraview .ecitem .st b { font-size: 18px; overflow-wrap: anywhere; }
+:root:root #infraview .ecchips { gap: 6px; }
+:root:root #infraview .ecchip { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; box-sizing: border-box; min-height: 30px; padding: 4px 11px; font-size: 13px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
+:root:root #infraview .ecchip img.ic { width: 16px; height: 16px; flex: none; }
+:root:root #infraview .ecbl .t { flex-wrap: wrap; gap: 4px 10px; }
+:root:root #infraview .ecbl .t span { min-width: 0; overflow-wrap: anywhere; }
+:root:root #infraview .ecbl img.ic { width: 18px; height: 18px; }
+:root:root #infraview .ecbuy { display: flex; width: 100%; min-height: 50px; padding: 10px 16px; font-size: 16px; line-height: 1.5; white-space: normal; text-align: center; overflow-wrap: anywhere; box-sizing: border-box; }
+:root:root #infraview .ecbuy img.ic { width: 20px; height: 20px; flex: none; }
+
+/* =====================================================================
+   صفحه‌ی ارتباطات (بیانیه‌ها، اخبار، گفتگو، گروه‌ها): اندازه‌ی یکسان لوگوها و دکمه‌ها + جلوگیری از بیرون‌زدن از کادر
+   ===================================================================== */
+:root:root #commview { overflow-x: clip; }
+:root:root #commview :is(.cmbar, .cmnote, .cmin, .chbody, .nwcard, .cmfoot, .rbox) { max-width: 100%; box-sizing: border-box; }
+:root:root #commview :is(.cmfoot, .rbox, .cmtext, .chtext) { overflow-wrap: anywhere; }
+
+/* نوار بالا و بنر «ارتباطات» */
+:root:root #commview .hbar .ibtn { width: 44px; height: 44px; min-width: 44px; padding: 0; flex: none; display: flex; align-items: center; justify-content: center; }
+:root:root #commview .hbar .ibtn img.ic { width: 22px; height: 22px; vertical-align: middle; }
+:root:root #commview .hbar .lgo { width: 36px; height: 36px; object-fit: contain; flex: none; }
+:root:root #commview .avatar .flag.lg { width: 62px; height: 62px; }
+:root:root #commview .cmbar { flex-wrap: nowrap; gap: 8px; padding: 12px 14px; }
+:root:root #commview .cmbar b { flex: 1 1 auto; min-width: 0; font-size: 20px; gap: 10px; white-space: nowrap; }
+:root:root #commview .cmbar b img.ic { width: 44px; height: 44px; flex: none; object-fit: contain; }
+:root:root #commview .cmbar .money { flex: 0 1 auto; min-width: 0; max-width: 46%; margin-right: 0; font-size: 14px; padding: 6px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:root:root #commview .cmbar .go { width: 40px; height: 40px; min-width: 40px; flex: none; font-size: 24px; }
+
+/* چهار تب (بیانیه‌ها، اخبار، گفتگو، گروه‌ها): آیکون بالا، نام زیرش؛ همه هم‌قد و داخل کادر */
+:root:root #commview .cmtabs { gap: 8px; }
+:root:root #commview .cmtab { flex: 1 1 0; min-width: 0; min-height: 58px; padding: 8px 4px; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-sizing: border-box; }
+:root:root #commview .cmtab svg { width: 22px; height: 22px; }
+:root:root #commview .cmtab img.ic { width: 22px; height: 22px; flex: none; }
+
+/* دکمه‌ی «بیانیه» و متن باقی‌مانده */
+:root:root #commview .cmcomp { flex-wrap: wrap; gap: 8px 12px; }
+:root:root #commview .cmpost { min-height: 46px; padding: 8px 22px; font-size: 16px; gap: 10px; }
+:root:root #commview .cmpost svg { width: 22px; height: 22px; flex: none; }
+:root:root #commview .cmleft { flex: 1 1 120px; min-width: 0; font-size: 14px; overflow-wrap: anywhere; }
+:root:root #commview .cmnote { align-items: flex-start; text-align: right; line-height: 1.8; overflow-wrap: anywhere; }
+:root:root #commview img.ic { vertical-align: middle; }
+:root:root #commview .cmnote img.ic { width: 18px; height: 18px; flex: none; margin-top: 4px; }
+
+/* کارت بیانیه */
+:root:root #commview .cmtop { gap: 10px; }
+:root:root #commview .cmwho { flex: 1 1 auto; min-width: 0; gap: 12px; }
+:root:root #commview .cmwho > div { min-width: 0; }
+:root:root #commview .cmwho .flag { width: 60px; height: 60px; min-width: 60px; flex: none; }
+:root:root #commview .cmwho .nm { font-size: 20px; overflow-wrap: anywhere; }
+:root:root #commview .cmchip { flex: none; min-height: 34px; padding: 6px 14px; font-size: 13px; white-space: nowrap; }
+:root:root #commview .cmcnt { flex-wrap: wrap; gap: 4px 12px; }
+:root:root #commview .cmvoters { gap: 8px; }
+:root:root #commview .cmv { max-width: 100%; min-width: 0; box-sizing: border-box; font-size: 13px; }
+:root:root #commview .cmv .flag { width: 28px; height: 28px; min-width: 28px; flex: none; }
+:root:root #commview .cmv svg { width: 20px; height: 20px; flex: none; }
+:root:root #commview .cmvote { gap: 10px; }
+:root:root #commview .cmvote button { min-width: 0; min-height: 56px; padding: 10px 8px; font-size: 18px; border-radius: 20px; white-space: normal; }
+:root:root #commview .cmvote button svg { width: 22px; height: 22px; flex: none; }
+
+/* اخبار */
+:root:root #commview .nwcard { gap: 10px; }
+:root:root #commview .nwcard .ic { width: 28px; min-width: 28px; font-size: 22px; text-align: center; }
+:root:root #commview .nwcard .ic img.ic, :root:root #commview .nwcard > img.ic { width: 26px; height: 26px; }
+:root:root #commview .nwcard > div:last-child, :root:root #commview .nwcard .tx { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; }
+:root:root #commview .nwcard .mt { flex-wrap: wrap; gap: 4px 8px; }
+
+/* گفتگو */
+:root:root #commview .chcomp { gap: 8px; }
+:root:root #commview .chin { flex: 1 1 0; min-width: 0; }
+:root:root #commview .chsend { flex: none; min-height: 44px; padding: 8px 18px; font-size: 15px; }
+:root:root #commview .chhead { flex-wrap: wrap; gap: 2px 8px; }
+:root:root #commview .chhead b { min-width: 0; overflow-wrap: anywhere; }
+:root:root #commview .chmsg .flag { width: 40px; height: 40px; min-width: 40px; flex: none; }
+
+/* برگه‌ی «بیانیه‌ی جدید» */
+:root:root #cosheet .sx, :root:root #cosheet .cmsend { box-sizing: border-box; }
+:root:root #cosheet .sx { width: 40px; height: 40px; min-width: 40px; padding: 0; flex: none; }
+:root:root #cosheet .cmsend { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 50px; padding: 10px 16px; font-size: 16px; white-space: normal; }
+:root:root #cosheet .cmmeta { flex-wrap: wrap; gap: 4px 12px; }
+
+/* پنجره‌ی اهداف (از چند صفحه باز می‌شود) */
+:root:root .glpanel { box-sizing: border-box; max-width: min(560px, 100%); }
+:root:root .glpanel .glx { width: 36px; height: 36px; min-width: 36px; padding: 0; border-radius: 50%; flex: none; }
+:root:root .glpanel .glhead { gap: 10px; }
+:root:root .glpanel .glhead > :first-child { min-width: 0; overflow-wrap: anywhere; }
+:root:root .glpanel .glitem .ic { width: 28px; min-width: 28px; font-size: 22px; text-align: center; }
+:root:root .glpanel .glitem .ic img.ic, :root:root .glpanel img.ic { width: 26px; height: 26px; }
+:root:root .glpanel .glitem .bd, :root:root .glpanel .glitem p, :root:root .glpanel .glitem b, :root:root .glpanel .glsub { overflow-wrap: anywhere; }
+
+/* =====================================================================
+   صفحه‌ی جنگ: اندازه‌ی یکسان لوگوها و دکمه‌ها + جلوگیری از بیرون‌زدن از کادر
+   ===================================================================== */
+:root:root #warview { overflow-x: clip; }
+:root:root #warview :is(.wcard, .wpanel, .wrow, .wfront, .wrep, .wdoc, .wnews, .wlog, .wcity, .wsiege, .wrbar) { max-width: 100%; box-sizing: border-box; }
+:root:root #warview :is(.wnote, .wlead, .wempty, .wnews, .wrep, .wcard p, .wdoc p, .wmul, .wwhy, .wsum, .wcity small, .wfc-det) { overflow-wrap: anywhere; }
+:root:root #warview img.ic { vertical-align: middle; }
+
+/* نوار بالا و بنر «جنگ» */
+:root:root #warview .hbar .ibtn { width: 44px; height: 44px; min-width: 44px; padding: 0; flex: none; display: flex; align-items: center; justify-content: center; }
+:root:root #warview .hbar .ibtn img.ic { width: 22px; height: 22px; }
+:root:root #warview .hbar .lgo { width: 36px; height: 36px; object-fit: contain; flex: none; }
+:root:root #warview .wrbar { flex-wrap: nowrap; gap: 8px; padding: 12px 14px; }
+:root:root #warview .wrbar .go { width: 40px; height: 40px; min-width: 40px; flex: none; font-size: 20px; padding: 0; }
+:root:root #warview .wrbar b { flex: 1 1 auto; min-width: 0; font-size: 20px; gap: 10px; white-space: nowrap; }
+:root:root #warview .wrbar b img.ic { width: 44px; height: 44px; flex: none; object-fit: contain; }
+:root:root #warview .wrbar .whelp { width: 32px; height: 32px; min-width: 32px; padding: 0; flex: none; font-size: 15px; display: flex; align-items: center; justify-content: center; }
+:root:root #warview .wrbar .money { flex: 0 1 auto; min-width: 0; max-width: 40%; margin-inline-start: 0; font-size: 14px; padding: 6px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* کارت‌های وضعیت: لوگوی گرد هم‌اندازه، متن داخل کادر */
+:root:root #warview .wcard { gap: 12px; padding: 14px; }
+:root:root #warview .wcard .wic { width: 50px; height: 50px; min-width: 50px; font-size: 22px; }
+:root:root #warview .wcard .wic img.ic { width: 28px; height: 28px; object-fit: contain; }
+:root:root #warview .wcard h4 { font-size: 17px; overflow-wrap: anywhere; }
+:root:root #warview .wcard .wpill { margin-inline-start: 6px; padding: 3px 12px; font-size: 13px; white-space: nowrap; }
+
+/* تب‌ها: آیکون بالا، نام زیرش؛ هم‌قد و داخل کادر */
+:root:root #warview .wtabs { gap: 4px; padding: 6px; }
+:root:root #warview .wtab { flex: 1 1 0; min-width: 0; min-height: 58px; padding: 8px 2px; gap: 4px; font-size: 12px; line-height: 1.3; justify-content: center; text-align: center; box-sizing: border-box; overflow: hidden; }
+:root:root #warview .wtab > span:last-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root:root #warview .wtab .ti { font-size: 20px; line-height: 1; }
+:root:root #warview .wtab .ti img.ic, :root:root #warview .wtab img.ic { width: 24px; height: 24px; }
+
+/* پنل‌ها */
+:root:root #warview .wpanel { padding: 14px; }
+:root:root #warview .wpanel h3 { font-size: 18px; gap: 8px; flex-wrap: wrap; overflow-wrap: anywhere; }
+:root:root #warview .wpanel h3 img.ic, :root:root #warview .wsub img.ic { width: 24px; height: 24px; flex: none; }
+:root:root #warview .wsub { font-size: 14px; overflow-wrap: anywhere; }
+
+/* ردیف هر کشور + دکمه‌ی «اعلان جنگ» */
+:root:root #warview .wrow { gap: 10px; padding: 12px; }
+:root:root #warview .wrow .wflag, :root:root #warview .wrow .wflag .flag { width: 44px; height: 44px; min-width: 44px; flex: none; }
+:root:root #warview .wrow .wn b { font-size: 18px; overflow-wrap: anywhere; }
+:root:root #warview .wrow .wn small { overflow-wrap: anywhere; }
+:root:root #warview .wgo { flex: 0 0 auto; max-width: 42%; min-height: 44px; padding: 8px 12px; font-size: 14px; line-height: 1.4; border-radius: 14px; white-space: normal; text-align: center; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+:root:root #warview .wgo img.ic { width: 18px; height: 18px; flex: none; }
+:root:root #warview .wmore { min-height: 44px; }
+
+/* دکترین‌ها */
+:root:root #warview .wdoc { gap: 10px; padding: 12px; }
+:root:root #warview .wdoc .wi { width: 36px; min-width: 36px; text-align: center; font-size: 28px; }
+:root:root #warview .wdoc .wi img.ic { width: 32px; height: 32px; }
+:root:root #warview .wdoc b { font-size: 17px; overflow-wrap: anywhere; }
+
+/* جبهه، نوارها و امتیاز جنگ */
+:root:root #warview .wfront .wtop { gap: 10px; }
+:root:root #warview .wfront .wtop .flag { width: 44px; height: 44px; min-width: 44px; flex: none; }
+:root:root #warview .wfront .wtop > div { min-width: 0; }
+:root:root #warview .wfront .wtop b { font-size: 18px; overflow-wrap: anywhere; }
+:root:root #warview :is(.wprog .wl, .wbal .wl, .wft) { flex-wrap: wrap; gap: 2px 10px; }
+:root:root #warview .wscale { font-size: 11px; }
+:root:root #warview .wscore .wnum { font-size: 28px; }
+:root:root #warview .wsm-hero .wnum { font-size: 38px; }
+:root:root #warview .wbanner { overflow-wrap: anywhere; }
+:root:root #warview .wfc { padding: 8px 10px; }
+:root:root #warview .wfc-top { min-width: 0; overflow-wrap: anywhere; }
+:root:root #warview .wfc-top img.ic { width: 18px; height: 18px; }
+
+/* دلیل تغییر امتیاز */
+:root:root #warview .wle-h { flex-wrap: wrap; }
+:root:root #warview .wle-t { min-width: 0; flex: 1 1 140px; overflow-wrap: anywhere; }
+:root:root #warview .wle-t img.ic, :root:root #warview .wle-ic img.ic { width: 18px; height: 18px; }
+:root:root #warview .wle-s { flex-wrap: wrap; gap: 2px 10px; }
+:root:root #warview .wle-pi { grid-template-columns: minmax(0, 1fr) auto; }
+:root:root #warview .wle-pi .k { white-space: normal; }
+:root:root #warview .wle-pi .y { grid-column: 1 / -1; overflow-wrap: anywhere; }
+
+/* نیروی شهرها */
+:root:root #warview .wcity .wch { flex-wrap: wrap; }
+:root:root #warview .wcity .wch b { min-width: 0; flex: 1 1 120px; overflow-wrap: anywhere; }
+:root:root #warview .wcity .wcp { white-space: normal; }
+
+/* گزارش نبرد */
+:root:root #warview .wrep { padding: 14px; }
+:root:root #warview .wrep h4 { font-size: 18px; overflow-wrap: anywhere; }
+:root:root #warview .wrep > div { overflow-wrap: anywhere; }
+:root:root #warview .wrep .wx { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; }
+:root:root #warview .wtag { white-space: normal; max-width: 100%; }
+
+/* چیپ‌های انتخاب شاخه/شهر و دکمه‌های حمله */
+:root:root #warview .wchips { gap: 8px; }
+:root:root #warview .wchip { max-width: 100%; min-height: 38px; padding: 6px 14px; font-size: 14px; line-height: 1.5; white-space: normal; text-align: right; box-sizing: border-box; display: inline-flex; align-items: center; gap: 6px; }
+:root:root #warview .wchip img.ic { width: 18px; height: 18px; flex: none; }
+:root:root #warview .wacts { flex-wrap: wrap; gap: 10px; }
+:root:root #warview .wact { flex: 1 1 130px; min-width: 0; min-height: 48px; padding: 8px 12px; font-size: 16px; white-space: normal; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box; }
+:root:root #warview .wact img.ic { width: 20px; height: 20px; flex: none; }
+
+/* صفحه‌ی تحمیل صلح (تمام‌صفحه، بیرون از #warview) */
+:root:root .wpeace { overflow-x: hidden; box-sizing: border-box; }
+:root:root .wpeace :is(.ppcap, .ppreg, .pprules, .ppfoot) { max-width: 100%; box-sizing: border-box; }
+:root:root .wpeace .pphead { gap: 10px; }
+:root:root .wpeace .ppback { width: 44px; height: 44px; min-width: 44px; padding: 0; flex: none; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+:root:root .wpeace .ppt h2 { font-size: 20px; overflow-wrap: anywhere; }
+:root:root .wpeace .ppbadge { font-size: 16px; padding: 5px 12px; }
+:root:root .wpeace .ppcap-top { flex-wrap: wrap; gap: 6px 12px; }
+:root:root .wpeace .ppcap-big .n { font-size: 40px; }
+:root:root .wpeace .ppcap-n, :root:root .wpeace .pprules .li { overflow-wrap: anywhere; }
+:root:root .wpeace .pptools { gap: 8px; }
+:root:root .wpeace .pptools .wchip { min-height: 36px; padding: 6px 14px; font-size: 13px; }
+:root:root .wpeace .ppgrid { grid-template-columns: repeat(auto-fill, minmax(min(165px, 100%), 1fr)); }
+:root:root .wpeace .ppreg { min-width: 0; }
+:root:root .wpeace .ppreg .nm { overflow-wrap: anywhere; }
+:root:root .wpeace .ppreg .r1 { flex-wrap: wrap; gap: 2px 8px; }
+:root:root .wpeace .ppreg .why, :root:root .wpeace .ppreg .aft { overflow-wrap: anywhere; }
+:root:root .wpeace .ppfoot .sum3 > div { min-width: 0; }
+:root:root .wpeace .ppfoot .wact { min-height: 50px; }
+:root:root .wpeace img.ic { width: 18px; height: 18px; vertical-align: middle; }
+
+/* پنجره‌ی هشدار جنگ */
+:root:root .walert-box { box-sizing: border-box; max-width: 100%; }
+:root:root .walert-box .wa-ic { font-size: 48px; }
+:root:root .walert-box .wa-ic img.ic { width: 56px; height: 56px; }
+:root:root .walert-box :is(h3, p, .wa-why, .wa-sc) { overflow-wrap: anywhere; }
+:root:root .walert-box .wacts { flex-wrap: wrap; gap: 10px; }
+:root:root .walert-box .wact { flex: 1 1 130px; min-width: 0; min-height: 48px; white-space: normal; }
+
+/* فروشگاه: قیمتِ «کارگر یک‌ماهه» (مثلاً ۵۰٬۰۰۰ تومان / ماه) داخل کادر بماند */
+:root:root #shopview .shitem .shpr { white-space: normal; line-height: 1.5; overflow-wrap: anywhere; flex: none; max-width: 38%; }
+
+/* =====================================================================
+   لوگوهای دارای زمینه‌ی خودشان (کلاس ibg) داخل کادر/دایره: کل کادر را پر می‌کنند
+   تا «مربعِ داخلِ دایره / کادرِ داخلِ کادر» دیده نشود
+   ===================================================================== */
+:root:root:root :is(.ecitem .ic, .nev .ni2, .world .wg, .mi, .shopcard .ico, .ni.home .ic):has(> img.ic.ibg) {
+  padding: 0; overflow: hidden; line-height: 0; position: relative;
+}
+:root:root:root :is(.ecitem .ic, .nev .ni2, .world .wg, .mi, .shopcard .ico, .ni.home .ic) > img.ic.ibg {
+  width: 100% !important; height: 100% !important; max-width: none !important; margin: 0 !important;
+  border-radius: inherit; object-fit: cover; vertical-align: top; display: block; background: none; border: 0; filter: none;
+}
+/* داخل دایره: کمی بزرگ‌تر تا لبه‌ی مربعِ لوگو بیرونِ دایره بیفتد و دیده نشود */
+:root:root:root :is(.nev .ni2, .world .wg, .mi.ring, .shopcard .ico, .ni.home .ic) > img.ic.ibg { transform: scale(1.12); }
+
+/* =====================================================================
+   فروشگاه: طراحی تازه (نوار بالا، متن معرفی، کارت بسته با دکمه‌ی خرید)
+   ===================================================================== */
+:root:root:root #shopview .shbar {
+  position: relative; overflow: hidden; padding: 14px 16px; border-radius: 26px;
+  border: 1.5px solid rgba(var(--acc-rgb), .5);
+  background: radial-gradient(120% 140% at 0% 0%, rgba(var(--acc-rgb), .34), transparent 60%), linear-gradient(135deg, #1f1733, #121620 80%);
+  box-shadow: 0 10px 28px rgba(110, 60, 210, .26), inset 0 1px 0 rgba(255, 255, 255, .1);
+}
+:root:root:root #shopview .shbar b { font-size: 24px; font-weight: 800; letter-spacing: -.2px; color: #fff; }
+:root:root:root #shopview .shbar .money {
+  padding: 7px 14px; border-radius: 999px; font-size: 17px; font-weight: 800; color: var(--acc-hi);
+  background: rgba(0, 0, 0, .34); border: 1px solid rgba(var(--acc-rgb), .4);
+}
+:root:root:root #shopview .shlead {
+  margin: 0 0 16px; padding: 13px 16px; border-radius: 20px; font-size: 14.5px; line-height: 1.9; color: #d3cde3;
+  background: rgba(var(--acc-rgb), .08); border: 1px solid rgba(var(--acc-rgb), .22); border-inline-start: 4px solid var(--acc);
+}
+
+:root:root:root #shopview .shitem {
+  position: relative; display: block; overflow: hidden; padding: 18px 16px 16px; margin-bottom: 16px; border-radius: 28px;
+  border: 1.5px solid rgba(var(--acc-rgb), .5);
+  background: radial-gradient(110% 80% at 100% 0%, rgba(var(--acc-rgb), .3), transparent 58%), linear-gradient(165deg, #241b3b, #11141c 72%);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .4), 0 0 24px rgba(var(--acc-rgb), .12), inset 0 1px 0 rgba(255, 255, 255, .09);
+  transition: transform .15s ease, box-shadow .2s ease;
+}
+:root:root:root #shopview .shitem:active { transform: scale(.985); }
+:root:root:root #shopview .shitem::after {   /* برق ملایمی که گاهی روی کارت می‌گذرد */
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 38%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .09), transparent);
+  transform: translateX(-130%) skewX(-18deg); animation: shShine 6s ease-in-out infinite;
+}
+@keyframes shShine { 0%, 55% { transform: translateX(-130%) skewX(-18deg); } 100% { transform: translateX(330%) skewX(-18deg); } }
+@media (prefers-reduced-motion: reduce) { :root:root:root #shopview .shitem::after { animation: none; display: none; } }
+
+:root:root:root #shopview .shitem .shmain { display: flex; align-items: center; gap: 15px; }
+:root:root:root #shopview .shitem .shic {
+  flex: none; width: 78px; height: 78px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; padding: 0;
+  border: 2px solid rgba(var(--acc-hi-rgb, 224, 204, 255), .65);
+  background: radial-gradient(circle at 50% 28%, rgba(var(--acc-rgb), .5), rgba(26, 17, 50, .95) 72%);
+  box-shadow: 0 0 0 5px rgba(var(--acc-rgb), .12), 0 0 26px rgba(var(--acc-rgb), .45);
+}
+:root:root:root #shopview .shitem .shic.wk { border: 2px solid rgba(224, 204, 255, .65); background: radial-gradient(circle at 50% 28%, rgba(var(--acc-rgb), .5), rgba(26, 17, 50, .95) 72%); padding: 0; }
+:root:root:root #shopview .shitem .shic img.ic, :root:root:root #shopview .shitem .shic.wk img.ic { width: 46px; height: 46px; vertical-align: 0; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .45)); }
+:root:root:root #shopview .shitem .shtx { flex: 1 1 0; min-width: 0; }
+:root:root:root #shopview .shitem .shtag {
+  display: inline-block; margin-bottom: 6px; padding: 3px 11px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .2px;
+  color: #2a1d00; background: linear-gradient(135deg, #ffe9a8, #e2a93a);
+}
+:root:root:root #shopview .shitem h4 { margin: 0 0 4px; font-size: 21px; font-weight: 800; color: #fff; }
+:root:root:root #shopview .shitem p { margin: 0; font-size: 13.5px; line-height: 1.85; color: #c9c4d9; }
+
+:root:root:root #shopview .shitem .shfoot {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; padding-top: 14px;
+  border-top: 1px dashed rgba(255, 255, 255, .16);
+}
+:root:root:root #shopview .shitem .shprice b { display: block; font-size: 26px; font-weight: 800; line-height: 1.2; color: #fff; direction: ltr; text-align: right; }
+:root:root:root #shopview .shitem .shprice span { display: block; font-size: 13px; color: var(--hint); }
+:root:root:root #shopview .shitem .shbuy {
+  flex: none; min-width: 116px; padding: 13px 26px; border: 0; border-radius: 18px; cursor: pointer;
+  font: inherit; font-size: 17px; font-weight: 800; color: var(--acc-ink);
+  background: linear-gradient(135deg, var(--acc-hi), var(--acc));
+  box-shadow: 0 8px 20px rgba(var(--acc-rgb), .42), inset 0 1px 0 rgba(255, 255, 255, .55);
+  transition: transform .12s ease, filter .15s ease;
+}
+:root:root:root #shopview .shitem .shbuy:active { transform: scale(.95); filter: brightness(.92); }
+
+:root:root:root #shopview .shempty {
+  padding: 46px 18px; border-radius: 28px; border: 1.5px dashed rgba(var(--acc-rgb), .4);
+  background: radial-gradient(90% 70% at 50% 0%, rgba(var(--acc-rgb), .14), transparent 70%); color: #bdb8cc;
+}
+:root:root:root #shopview .shorder { border-radius: 26px; border-color: rgba(var(--acc-rgb), .55); background: linear-gradient(165deg, rgba(var(--acc-rgb), .14), rgba(16, 21, 29, .94)); }
+:root:root:root #shopview .shorder h4 { color: var(--acc-hi); }
+:root:root:root #shopview .shorder .shrbtn { border-color: var(--acc); color: var(--acc-hi); background: rgba(var(--acc-rgb), .14); }
