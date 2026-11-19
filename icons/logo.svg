@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="spG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd9ae"/><stop offset=".5" stop-color="#f28c28"/><stop offset="1" stop-color="#b85a12"/></linearGradient>
+    <radialGradient id="spO" cx=".32" cy=".28" r=".85"><stop offset="0" stop-color="#5db4ea"/><stop offset=".5" stop-color="#1d5f95"/><stop offset="1" stop-color="#06213b"/></radialGradient>
+    <clipPath id="spC"><circle cx="100" cy="120" r="52"/></clipPath>
+  </defs>
+  <circle cx="100" cy="100" r="94" fill="#12171d" fill-opacity=".75"/>
+  <circle class="ring" cx="100" cy="100" r="94" fill="none" stroke="#f28c28" stroke-opacity=".55" stroke-width="2" stroke-dasharray="3 9" stroke-linecap="round"/>
+  <circle cx="100" cy="100" r="86" fill="none" stroke="url(#spG)" stroke-width="3.5"/>
+  <circle cx="100" cy="100" r="80" fill="none" stroke="#f28c28" stroke-opacity=".35" stroke-width="1"/>
+  <circle cx="100" cy="120" r="52" fill="url(#spO)"/>
+  <g clip-path="url(#spC)" fill="none" stroke="#bfe6ff" stroke-opacity=".55" stroke-width="1.2">
+    <ellipse class="mer m1" cx="100" cy="120" rx="52" ry="52"/>
+    <ellipse class="mer m2" cx="100" cy="120" rx="52" ry="52"/>
+    <ellipse class="mer m3" cx="100" cy="120" rx="52" ry="52"/>
+    <path d="M48 120H152M54 98H146M54 142H146" stroke-opacity=".4"/>
+    <path d="M62 108c10-8 20-4 24 4s-6 12-4 20-12 8-18 2-8-18-2-26zM104 100c10-6 24 0 24 10s-10 10-8 20-14 8-18 0 0-24 2-30z" fill="#3f9d5a" fill-opacity=".85" stroke="none"/>
+  </g>
+  <circle cx="100" cy="120" r="52" fill="none" stroke="url(#spG)" stroke-width="3"/>
+  <ellipse cx="82" cy="98" rx="16" ry="8" fill="#fff" fill-opacity=".18" transform="rotate(-30 82 98)"/>
+  <path d="M64 70 L68 40 L86 56 L100 30 L114 56 L132 40 L136 70 Z" fill="url(#spG)" stroke="#6b3408" stroke-width="2" stroke-linejoin="round"/>
+  <rect x="64" y="70" width="72" height="9" rx="3" fill="url(#spG)" stroke="#6b3408" stroke-width="2"/>
+  <circle cx="68" cy="40" r="4" fill="#ff6b6b" stroke="#6b3408" stroke-width="1.2"/>
+  <circle cx="100" cy="30" r="5" fill="#6bc6ff" stroke="#6b3408" stroke-width="1.2"/>
+  <circle cx="132" cy="40" r="4" fill="#ff6b6b" stroke="#6b3408" stroke-width="1.2"/>
+  <circle cx="100" cy="74.5" r="2.6" fill="#6b3408"/>
+</svg>

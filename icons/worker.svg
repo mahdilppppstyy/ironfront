@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b3a55"/>
+      <stop offset="1" stop-color="#141c2b"/>
+    </linearGradient>
+    <linearGradient id="hat" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd84d"/>
+      <stop offset="1" stop-color="#f5a300"/>
+    </linearGradient>
+    <linearGradient id="vest" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff9a3c"/>
+      <stop offset="1" stop-color="#ee6a10"/>
+    </linearGradient>
+    <clipPath id="circ"><circle cx="256" cy="256" r="236"/></clipPath>
+  </defs>
+
+  <!-- پس‌زمینه -->
+  <circle cx="256" cy="256" r="244" fill="#f5a300"/>
+  <circle cx="256" cy="256" r="236" fill="url(#bg)"/>
+
+  <g clip-path="url(#circ)">
+    <!-- پرتوهای پشت -->
+    <g opacity="0.08" fill="#fff">
+      <path d="M256 256 L120 0 L190 0Z"/><path d="M256 256 L330 0 L400 0Z"/>
+      <path d="M256 256 L512 120 L512 190Z"/><path d="M256 256 L0 120 L0 190Z"/>
+    </g>
+
+    <!-- بدن -->
+    <path d="M96 520 C96 410 160 360 256 360 C352 360 416 410 416 520Z" fill="url(#vest)"/>
+    <!-- نوار شبرنگ -->
+    <path d="M150 400 L150 520 L186 520 L186 384Z" fill="#fff6c9"/>
+    <path d="M362 400 L362 520 L326 520 L326 384Z" fill="#fff6c9"/>
+    <!-- یقه -->
+    <path d="M214 362 L256 420 L298 362 C280 354 232 354 214 362Z" fill="#3b2a1e"/>
+
+    <!-- گردن -->
+    <rect x="228" y="318" width="56" height="52" rx="14" fill="#d9976a"/>
+    <!-- صورت -->
+    <ellipse cx="256" cy="262" rx="82" ry="88" fill="#f0b184"/>
+    <!-- گوش‌ها -->
+    <ellipse cx="174" cy="268" rx="13" ry="21" fill="#e29e72"/>
+    <ellipse cx="338" cy="268" rx="13" ry="21" fill="#e29e72"/>
+    <!-- ابروها -->
+    <path d="M208 236 Q226 226 244 236" stroke="#3b2a1e" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <path d="M268 236 Q286 226 304 236" stroke="#3b2a1e" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <!-- چشم‌ها -->
+    <circle cx="226" cy="262" r="9" fill="#2a1d14"/>
+    <circle cx="286" cy="262" r="9" fill="#2a1d14"/>
+    <circle cx="229" cy="259" r="3" fill="#fff"/><circle cx="289" cy="259" r="3" fill="#fff"/>
+    <!-- لبخند -->
+    <path d="M222 304 Q256 336 290 304" stroke="#8a4a2c" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <!-- گونه -->
+    <circle cx="200" cy="294" r="12" fill="#ee8f7a" opacity="0.45"/>
+    <circle cx="312" cy="294" r="12" fill="#ee8f7a" opacity="0.45"/>
+
+    <!-- کلاه ایمنی -->
+    <path d="M162 214 C162 140 210 96 256 96 C302 96 350 140 350 214Z" fill="url(#hat)"/>
+    <path d="M238 100 L238 214 L274 214 L274 100 C262 97 250 97 238 100Z" fill="#e89400" opacity="0.55"/>
+    <path d="M190 150 C204 122 228 108 250 106" stroke="#fff" stroke-opacity="0.55" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <!-- لبه‌ی کلاه -->
+    <rect x="140" y="208" width="232" height="26" rx="13" fill="#f5a300"/>
+    <rect x="140" y="208" width="232" height="10" rx="5" fill="#ffd84d"/>
+  </g>
+
+  <!-- حلقه‌ی بیرونی -->
+  <circle cx="256" cy="256" r="236" fill="none" stroke="#ffd84d" stroke-width="6"/>
+</svg>
